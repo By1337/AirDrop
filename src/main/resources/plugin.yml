@@ -1,0 +1,49 @@
+name: AirDrop
+version: '${project.version}'
+main: org.by1337.airdrop.airdrop.AirDrop
+depend: [PlaceholderAPI, DecentHolograms, WorldGuard, WorldEdit]
+api-version: 1.13
+authors: [ By1337 ]
+description: 123
+commands:
+  airdrop:
+    description: Standart Command
+    aliases: [air]
+    usage: Usage /air help
+permissions:
+  air.*:
+    description: All cmd
+    default: op
+    children:
+      air.tp: true
+      air.reload: true
+      air.create: true
+      air.start: true
+      air.unlock: true
+      air.stop: true
+      air.gui: true
+      air.chest: true
+  air.tp:
+    description: /air tp
+    default: op
+  air.reload:
+    description: /air reload
+    default: op
+  air.create:
+    description: /air create
+    default: op
+  air.start:
+    description: /air start
+    default: op
+  air.unlock:
+    description: /air start
+    default: op
+  air.stop:
+    description: /air start
+    default: op
+  air.gui:
+    description: /air gui
+    default: op
+  air.chest:
+    description: /air chest
+    default: op

@@ -1,0 +1,97 @@
+# {time} Выводит 1 минута. {time2} Выводит 1 минуту. Работает не во всех сообщениях!
+# {px} заменяется на prefix. Во всех сообщениях
+settings:
+  #настройки спавна аирдропа
+  spawn-max: 2000 #Максимальная
+  spawn-min: -2000 #Минимальная координата
+  world: world #мир в котором появится аирдроп
+  radius-protect-block: 15 # размер защиты аирдропа
+  #настройки таймингов появления аирдропа
+  time-start-interval: 2 #Сколько до начала в минутах
+  duration-event: 1 #сколько будет закрыт сундук
+  time-stop-event: 1 #через сколько после начала пропадёт аирдроп
+  #прочее
+  empty-slot-chance: 25 #Шанс того что слот будет пустым от 0 до 100. 0 - отключит, а 100 сделает сундуки всегда пустыми
+  laser-settings: #Настройки лазера
+    laser: 'CRYSTAL_LASER' # варианты: CRYSTAL_LASER, GUARDIAN_LASER, NONE
+    laser-view-distance: 50 # в блоках
+    laser-time: 300 # в секундах
+  effect-settings: #Настройки эфектов
+    explosion-power: 4.75 #Сила взрыва для Эфекта Explosion. 4.75 = взрыву заряженного крипера
+    drop-open-effect: # Что будет происходить когда аир дроп откроется варианты - strikeLightning (молния), fireWork (фейерверк), explosion (взрыв, блоки не взорвутся), fakeStrikeLightning (будет эффект удара молнии без нанесения урона)
+      - explosion
+      - strikeLightning
+      - fireWork
+      - fakeStrikeLightning
+msg:
+  item-del: '&c&lПКМ &f- удалить предмет из списка'
+  unknown-command: '&cНеизвестная команда'
+  invalid-key: '&cПредметов с таким ключом нет!'
+  only-players: 'Only players!'
+  reload: '&aКонфиг перезагружен!'
+  item-add: '&aПредметы добавлены по ключу {key}'
+  error-number: '&cОшибка возможно вы ввели не число! детали в консоли'
+  prefix: '&7[&6АирДроп&7]' #Заменяет {px}
+  drop-name-holo: '&aAir drop' # Первая строчка голограммы над сундуком
+  drop-locked: '&cЗакрыто. Откроется через {time2}' #Вторая строчка над сундуком
+  drop-unlocked: '&aОткрыто' # Вторая строчка над сундуком
+  chest-locked: '{px} &cСундук закрыт!' # Выводится когда, игрок пытается открыть сундук
+  no-prem: '&cУ Вас нет разрешения!' # Выводится когда у игрока нет разрешения
+  no-event: '{px} &cИзвините но ивент не начат!'
+  few-arguments: '{px} &cМало аргументов!'
+  drop-spawning: '{px} &fАирдроп только что &6появился &fна координатах &6{x}, {y}, {z}' # Выводится когда ивент начался
+  event-end: '{px} &fАирдроп окончен!' # Выводится когда закончился
+  msg-open-event: '{px} &fАирдроп &aоткроется &fчерез &6{time2}!' # notification-open-time
+  msg-start-event: '{px} &fАирдроп &aпоявится &fчерез &6{time2}!' # notification-time
+  notification-open-time: #за сколько до открытия сундука выводить сообщение о его предстоящем открытии в секундах
+    - 60
+    - 30
+    - 10
+    - 5
+    - 3
+    - 2
+    - 1
+  notification-time: #за сколько до начала ивента выводить сообщение о его предстоящем начале в секундах
+    - 60
+    - 30
+    - 10
+    - 5
+    - 3
+    - 2
+    - 1
+  format-time: # Формат вывода времени
+    - '1 час'
+    - 'часа'
+    - 'ч.'
+    - '1 минута'
+    - 'минуты'
+    - 'мин.'
+    - '1 секунда'
+    - 'секунды'
+    - 'c.'
+    - 'часов'
+    - '1 минуту'
+    - 'минут'
+    - '1 секунду'
+    - 'секунд'
+black-List:
+  - LAVA
+  - WATER
+  - SNOW
+  - BEDROCK
+  - CACTUS
+  - FIRE
+  - END_PORTAL
+  - END_CRYSTAL
+  - END_PORTAL_FRAME
+  - NETHER_PORTAL
+  - ACACIA_LEAVES
+  - AZALEA_LEAVES
+  - BIRCH_LEAVES
+  - OAK_LEAVES
+  - DARK_OAK_LEAVES
+  - SPRUCE_LEAVES
+  - FLOWERING_AZALEA_LEAVES
+  - JUNGLE_LEAVES
+
+data: # тут хранятся предметы
