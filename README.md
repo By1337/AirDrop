@@ -1,5 +1,7 @@
 Tested versions: 1.16.5, 1.18.2
+
 Soft depend: PlaceholderAPI, DecentHolograms, WorldGuard, WorldEdit
+
 Basic commands
 - /air start Starts the event
 - /air stop Ends the event
