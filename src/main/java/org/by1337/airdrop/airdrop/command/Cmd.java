@@ -1,5 +1,6 @@
 package org.by1337.airdrop.airdrop.command;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
 import org.bukkit.command.Command;
@@ -15,8 +16,7 @@ import org.by1337.airdrop.airdrop.Gui.GuiBuilder;
 import org.by1337.airdrop.airdrop.util.Message;
 
 import static org.by1337.airdrop.airdrop.AirSpawn.getAirLocation;
-import static org.by1337.airdrop.airdrop.util.Config.*;
-
+import static org.by1337.airdrop.airdrop.util.CfgManager.Config.*;
 import java.util.*;
 
 import static org.by1337.airdrop.airdrop.AirDrop.*;
@@ -24,7 +24,6 @@ import static org.by1337.airdrop.airdrop.util.GetRandomItem.GetItem;
 import static org.by1337.airdrop.airdrop.util.GetRandomItem.Sort;
 
 public class Cmd implements CommandExecutor {
-    // private final Holograms Holograms = new Holograms();
     private final AirDrop plugin;
 
     public Cmd(AirDrop plugin) {
@@ -36,12 +35,14 @@ public class Cmd implements CommandExecutor {
         Player p = null;
         if (sender instanceof Player) {
             p = (Player) sender;
-
             if (args.length == 0) {
                 Message.SendMsg(p, getUnknownCommand());
                 return true;
             }
-
+            if (args[0].equals("vr")) {
+                Message.SendMsg(p, "" + getConfigVersion());
+                return true;
+            }
             if (args[0].equals("chest")) {
                 if (p.hasPermission("air.chest")) {
                     p.getLocation().getBlock().setType(Material.CHEST);
@@ -64,19 +65,24 @@ public class Cmd implements CommandExecutor {
 
             if (args[0].equals("gui")) {
                 if (p.hasPermission("air.gui")) {
-                    Short[] chance = AirDrop.baseItem.keySet().toArray(new Short[0]);
-                    List<String> list = new ArrayList<>();
-                    for (Short c : chance)
-                        list.add(c.toString());
-                    if (!list.contains(args[1])) {
-                        Message.SendMsg(p, getInvalidKey());
-                        return true;
-                    }
-                    GuiBuilder.GenerateMenu(Short.valueOf(args[1]));
-                    p.openInventory(GuiBuilder.menuInventory);
-                }
-            }
+                    if (args.length >= 2) {
+                        Short[] chance = AirDrop.baseItem.keySet().toArray(new Short[0]);
+                        List<String> list = new ArrayList<>();
+                        for (Short c : chance)
+                            list.add(c.toString());
+                        if (!list.contains(args[1])) {
+                            Message.SendMsg(p, getInvalidKey());
+                            return true;
+                        }
+                        GuiBuilder.pageNumber = 0;
+                        GuiBuilder.GenerateMenu(Short.valueOf(args[1]));
+                        p.openInventory(GuiBuilder.menuInventory);
+                    } else
+                        Message.SendMsg(p, getFewArguments());
+                } else
+                    Message.SendMsg(p, getNoPrem());
 
+            }
             if (args[0].equals("tp")) {
                 if (p.hasPermission("air.tp")) {
                     if (AirSpawn.eventActivity)
@@ -161,22 +167,22 @@ public class Cmd implements CommandExecutor {
             return true;
         } else {
             if (args[0].equals("unlock")) {
-                    if (AirSpawn.eventActivity)
-                        AirDrop.Unlock();
-                    else
-                        Message.Logger(getNoEvent());
+                if (AirSpawn.eventActivity)
+                    AirDrop.Unlock();
+                else
+                    Message.Logger(getNoEvent());
                 return true;
             }
             if (args[0].equals("stop")) {
 
-                    if (AirSpawn.eventActivity)
-                        AirDrop.Stop();
-                    else
-                        Message.Logger(getNoEvent());
+                if (AirSpawn.eventActivity)
+                    AirDrop.Stop();
+                else
+                    Message.Logger(getNoEvent());
                 return true;
             }
             if (args[0].equals("start")) {
-                    AirDrop.Start();
+                AirDrop.Start();
                 return true;
             }
             Message.Warning(getOnlyPlayers());

@@ -1,50 +1,59 @@
-# Translation by google translate
-# {time} Displays 1 minute. {time2} Displays 1 minute. Does not work in all messages!
-# {px} is replaced with prefix. In all messages
+# {time} Выводит 1 минута. {time2} Выводит 1 минуту. Работает не во всех сообщениях!
+# {px} заменяется на prefix. Во всех сообщениях
+config-version: 1
 settings:
-  #airdrop spawn settings
-  spawn-max: 2000 #Maximum
-  spawn-min: -2000 #Minimum coordinate
-  world: world #the world in which the airdrop will appear
-  radius-protect-block: 15 #airdrop protection size
-  #airdrop spawn timing settings
-  time-start-interval: 2 #How many minutes before the start
-  duration-event: 1 #how long will the chest be closed
-  time-stop-event: 1 #how long after the start will the airdrop disappear
-
-  empty-slot-chance: 25 #chance that the slot will be empty from 0 to 100. 0 will disable, and 100 will make the chests always empty
-  laser-settings: #Laser settings
-    laser: 'CRYSTAL_LASER' #options: CRYSTAL_LASER, GUARDIAN_LASER, NONE
-    laser-view-distance: 50 # in blocks
-    laser-time: 300 # in seconds
-  effect-settings: #Effect settings
-    explosion-power: 4.75 #The force of the explosion for the Explosion Effect. 4.75 = charged creeper explosion
-    drop-open-effect: #What will be reasonable when airdrops are valid options - strikeLightning (lightning), fireWork (fireworks), Explosion (explosion, blocks will not explode), fakeStrikeLightning (there will be a lightning strike effect without damaging damage)
+  #настройки спавна аирдропа
+  spawn-max: 2000 #Максимальная
+  spawn-min: -2000 #Минимальная координата
+  world: world #мир в котором появится аирдроп
+  radius-protect-block: 15 # размер защиты аирдропа
+  min-online-players: 1 #минимальное количество игроков на сервере для старта ивента
+  #настройки таймингов появления аирдропа
+  time-start-interval: 2 #Сколько до начала в минутах
+  duration-event: 1 #сколько будет закрыт сундук
+  time-stop-event: 1 #через сколько после начала пропадёт аирдроп
+  #прочее
+  empty-slot-chance: 25 #Шанс того что слот будет пустым от 0 до 100. 0 - отключит, а 100 сделает сундуки всегда пустыми
+  laser-settings: #Настройки лазера
+    laser: 'CRYSTAL_LASER' # варианты: CRYSTAL_LASER, GUARDIAN_LASER, NONE
+    laser-view-distance: 50 # в блоках
+    laser-time: 300 # в секундах
+  effect-settings: #Настройки эфектов
+    explosion-power: 4.75 #Сила взрыва для Эфекта Explosion. 4.75 = взрыву заряженного крипера
+    drop-open-effect: # Что будет происходить когда аир дроп откроется варианты - strikeLightning (молния), fireWork (фейерверк), explosion (взрыв, блоки не взорвутся), fakeStrikeLightning (будет эффект удара молнии без нанесения урона)
       - explosion
       - strikeLightning
       - fireWork
       - fakeStrikeLightning
+      - defenders
+  defenders: #мобы охранники
+    name: "&c&lХранитель"
+    type: VINDICATOR # все мобы - https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/Entity.html список под текстом 'All Known Subinterfaces:'
 msg:
-  item-del: '&c&lRIGHT CLICK &f- remove an item from the list'
-  unknown-command: '&cUnknown command'
-  invalid-key: '&cThere are no items with this key!'
+  item-del: '&c&lПКМ &f- удалить предмет из списка'
+  unknown-command: '&cНеизвестная команда'
+  invalid-key: '&cПредметов с таким ключом нет!'
   only-players: 'Only players!'
-  reload: '&aConfig reloaded!'
-  item-add: '&aItems added by key {key}'
-  error-number: '&cError, you may not have entered a number! details in console'
-  prefix: '&7[&6AirDrop&7]' #Replaces {px}
-  drop-name-holo: '&aAir drop' # The first line of the hologram above the chest
-  drop-locked: '&cClosed. Opens in {time2}' #Second line above the chest
-  drop-unlocked: '&aOpen' #Second line above the chest
-  chest-locked: '{px} &cChest closed!' # Printed when a player tries to open a chest
-  no-prem: '&cYou do not have permission!' # Displayed when the player does not have permission
-  no-event: '{px} &cSorry, but the event has not started!'
-  few-arguments: '{px} &cFew arguments!'
-  drop-spawning: '{px} &fAirdrop just appeared on coordinates &6{x}, {y}, {z}' # Displayed when the event has started
-  event-end: '{px} &fAirdrop is over!' # Dispatched when finished
-  msg-open-event: '{px} &fAirdrop &awill open &fчерез &6{time2}!' # notification-open-time
-  msg-start-event: '{px} &fAirdrop &awill appear &fчерез &6{time2}!' # notification-time
-  notification-open-time: #how long before the opening of the chest, display a message about its upcoming opening in seconds
+  reload: '&aКонфиг перезагружен!'
+  item-add: '&aПредметы добавлены по ключу {key}'
+  error-number: '&cОшибка возможно вы ввели не число! детали в консоли'
+  prefix: '&7[&6АирДроп&7]' #Заменяет {px}
+  drop-name-holo: '&aAir drop' # Первая строчка голограммы над сундуком
+  drop-locked: '&cЗакрыто. Откроется через {time2}' #Вторая строчка над сундуком
+  drop-unlocked: '&aОткрыто' # Вторая строчка над сундуком
+  chest-locked: '{px} &cСундук закрыт!' # Выводится когда, игрок пытается открыть сундук
+  no-prem: '&cУ Вас нет разрешения!' # Выводится когда у игрока нет разрешения
+  no-event: '{px} &cИзвините но ивент не начат!'
+  few-arguments: '{px} &cМало аргументов!'
+  drop-spawning: '{px} &fАирдроп только что &6появился &fна координатах &6{x}, {y}, {z}' # Выводится когда ивент начался
+  event-end: '{px} &fАирдроп окончен!' # Выводится когда закончился
+  msg-open-event: '{px} &fАирдроп &aоткроется &fчерез &6{time2}!' # notification-open-time
+  msg-start-event: '{px} &fАирдроп &aпоявится &fчерез &6{time2}!' # notification-time
+  papi-event-is-activity: '&aНачат!'
+  papi-chest-is-unlocked: '&aУже открыт!'
+  papi-poz: '{x}, {y}, {z}'
+  papi-poz-none: '&cНет активного ивента!' #Используют %airdrop_poz%, %airdrop_locked% и %airdrop_locked2%
+  notification-open-time: #за сколько до открытия сундука выводить сообщение о его предстоящем открытии в секундах
     - 60
     - 30
     - 10
@@ -52,7 +61,7 @@ msg:
     - 3
     - 2
     - 1
-  notification-time: #how long before the start of the event to display a message about its upcoming start in seconds
+  notification-time: #за сколько до начала ивента выводить сообщение о его предстоящем начале в секундах
     - 60
     - 30
     - 10
@@ -60,21 +69,20 @@ msg:
     - 3
     - 2
     - 1
-  format-time: # Time output format
-    - '1 hour'
-    - 'hour'
-    - 'h.'
-    - '1 minute'
-    - 'minute'
-    - 'min.'
-    - '1 second'
-    - 'second'
-    - 'sec.'
-    - 'h.'
-    - '1 minute'
-    - 'minutes'
-    - '1 second'
-    - 'second'
+  format-time: # Формат вывода времени
+    - ' час '
+    - ' часа '
+    - ' часов '
+    - ' минута '
+    - ' минуты '
+    - ' минут '
+    - ' секунда '
+    - ' секунды '
+    - ' секунд '
+    - ' час '
+    - ' минуту '
+    - ' секунду '
+
 black-List:
   - LAVA
   - WATER
@@ -95,4 +103,4 @@ black-List:
   - FLOWERING_AZALEA_LEAVES
   - JUNGLE_LEAVES
 
-data: # items are stored here
+data: # тут хранятся предметы

@@ -30,7 +30,6 @@ public class cmdCompleter implements TabCompleter {
                             "gui",
                             "chest"
                     );
-
                 }
                 if (args[0].equals("gui")) {
                     Short[] chance = AirDrop.baseItem.keySet().toArray(new Short[0]);
@@ -54,7 +53,6 @@ public class cmdCompleter implements TabCompleter {
                             "gui",
                             "chest"
                     );
-
                 }
                 if (args[0].equals("gui")) {
                     Short[] chance = AirDrop.baseItem.keySet().toArray(new Short[0]);
@@ -66,8 +64,6 @@ public class cmdCompleter implements TabCompleter {
                 }
             }
         }
-
-
         return null;
     }
 }

@@ -1,19 +1,14 @@
 package org.by1337.airdrop.airdrop;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.util.Direction;
 import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 
 import com.sk89q.worldguard.protection.flags.Flags;
-import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.managers.RemovalStrategy;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import org.bukkit.Bukkit;
@@ -24,13 +19,11 @@ import org.bukkit.block.Chest;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.by1337.airdrop.airdrop.util.Message;
-
+import static org.by1337.airdrop.airdrop.util.CfgManager.Config.*;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.sk89q.worldguard.protection.flags.StateFlag.State.*;
-import static org.by1337.airdrop.airdrop.AirDrop.instance;
-import static org.by1337.airdrop.airdrop.util.Config.*;
 import static org.by1337.airdrop.airdrop.util.GetRandomItem.GetItem;
 import static org.by1337.airdrop.airdrop.util.GetRandomItem.Sort;
 
@@ -57,7 +50,7 @@ public class AirSpawn {
 
             Inventory inv = chest.getBlockInventory();
             chest.getInventory().clear();
-            AirSpawn.RemoveRegion();
+            RemoveRegion();
             SetRegion();
             for (int x = 0; x < chest.getInventory().getSize(); x++) {
                 ItemStack item = GetItem();
@@ -136,8 +129,8 @@ public class AirSpawn {
         regions.addRegion(rg);
     }
 
-    public static void setAirLocation(Location airLocation) {
-        AirSpawn.airLocation = airLocation;
+    public static void setAirLocation(Location loc) {
+        airLocation = loc;
     }
 
     public static Location getAirLocation() {

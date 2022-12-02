@@ -5,13 +5,11 @@ import eu.decentsoftware.holograms.api.holograms.Hologram;
 import org.bukkit.Location;
 import java.util.Arrays;
 import java.util.List;
-
+import static org.by1337.airdrop.airdrop.util.CfgManager.Config.*;
 import static org.by1337.airdrop.airdrop.AirSpawn.chestLocked;
-import static org.by1337.airdrop.airdrop.util.Config.*;
 
 public class HologramManager {
     private final String holoName = "airDropHologram";
-
     public void HoloCreate(Location loc){
         Hologram hologram;
         hologram = DHAPI.getHologram(holoName);
@@ -19,7 +17,6 @@ public class HologramManager {
         if(hologram == null)
             DHAPI.createHologram(holoName, loc, lines);
     }
-
     public void HoloUpdate(String time, String time2){
         Hologram hologram;
         hologram = DHAPI.getHologram(holoName);

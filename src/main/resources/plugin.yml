@@ -4,7 +4,7 @@ main: org.by1337.airdrop.airdrop.AirDrop
 depend: [PlaceholderAPI, DecentHolograms, WorldGuard, WorldEdit]
 api-version: 1.13
 authors: [ By1337 ]
-description: 123
+description: Event AirDrop!
 commands:
   airdrop:
     description: Standart Command

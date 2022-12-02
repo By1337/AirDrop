@@ -1,8 +1,8 @@
 package org.by1337.airdrop.airdrop.util;
 
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.by1337.airdrop.airdrop.AirDrop;
+import org.by1337.airdrop.airdrop.util.CfgManager.Config;
 
 import java.util.List;
 
