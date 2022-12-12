@@ -15,11 +15,11 @@ import java.util.Objects;
 import static org.by1337.airdrop.airdrop.AirDrop.instance;
 
 public class Config {
-    private static int spawnMax;
-    private static int spawnMin;
-    private static World world;
+  //  private static int spawnMax;
+ //   private static int spawnMin;
+  //  private static World world;
     private static List<String> blackList = new ArrayList<String>();
-    private static String dropNameHolo;
+   // private static String dropNameHolo;
     private static String dropLocked;
     private static int timeStartInterval;
     private static int timeLockedChest;
@@ -49,7 +49,6 @@ public class Config {
     private static String papiEventIsActivity;
     private static Double explosionPower;
     private static Double configVersion;
-    private static int radiusProtectBlock;
     private static int emptySlotChance;
     private static String defendersName;
     private static String papiPoz;
@@ -64,17 +63,17 @@ public class Config {
         papiPozNone = instance.getConfig().getString("msg.papi-poz-none");
         papiChestUnlocked = instance.getConfig().getString("msg.papi-chest-is-unlocked");
 
-        spawnMax = instance.getConfig().getInt("settings.spawn-max");
-        spawnMin = instance.getConfig().getInt("settings.spawn-min");
+     //   spawnMax = instance.getConfig().getInt("settings.spawn-max");
+     //   spawnMin = instance.getConfig().getInt("settings.spawn-min");
         emptySlotChance = instance.getConfig().getInt("settings.empty-slot-chance");
         minOnlinePlayers = instance.getConfig().getInt("settings.min-online-players");
 
         timeStartInterval = instance.getConfig().getInt("settings.time-start-interval");
         timeLockedChest = instance.getConfig().getInt("settings.duration-event");
         timeStopEvent = instance.getConfig().getInt("settings.time-stop-event");
-        world = Bukkit.getWorld((String) Objects.requireNonNull(instance.getConfig().get("settings.world")));
+      //  world = Bukkit.getWorld((String) Objects.requireNonNull(instance.getConfig().get("settings.world")));
         blackList = instance.getConfig().getStringList("black-List");
-        dropNameHolo = instance.getConfig().getString("msg.drop-name-holo");
+      //  dropNameHolo = instance.getConfig().getString("msg.drop-name-holo");
         dropLocked = instance.getConfig().getString("msg.drop-locked");
         msgStartEvent = instance.getConfig().getString("msg.msg-start-event");
         dropUnlocked = instance.getConfig().getString("msg.drop-unlocked");
@@ -99,7 +98,7 @@ public class Config {
 
         explosionPower = (double) instance.getConfig().getDouble("settings.effect-settings.explosion-power");
         configVersion = (double) instance.getConfig().getDouble("config-version");
-        radiusProtectBlock = instance.getConfig().getInt("settings.radius-protect-block");
+
 
         formatTime = instance.getConfig().getStringList("msg.format-time");
         notificationTime = instance.getConfig().getStringList("msg.notification-time");
@@ -171,9 +170,6 @@ public class Config {
         return errorNumber;
     }
 
-    public static int getRadiusProtectBlock() {
-        return radiusProtectBlock;
-    }
 
     public static Double getExplosionPower() {
         return explosionPower;
@@ -247,29 +243,29 @@ public class Config {
         return timeStopEvent;
     }
 
-    public static String getDropNameHolo() {
-        return dropNameHolo;
-    }
+//    public static String getDropNameHolo() {
+//        return dropNameHolo;
+//    }
 
     public static String getDropLocked() {
         return dropLocked;
     }
 
-    public static World getWorld() {
-        return world;
-    }
+  //  public static World getWorld() {
+  //      return world;
+  //  }
 
     public static List<String> getBlackList() {
         return blackList;
     }
 
-    public static int getSpawnMax() {
-        return spawnMax;
-    }
-
-    public static int getSpawnMin() {
-        return spawnMin;
-    }
+//    public static int getSpawnMax() {
+//        return spawnMax;
+//    }
+//
+//    public static int getSpawnMin() {
+//        return spawnMin;
+//    }
 
     public static void SetConfig() {
         instance.getConfig().options().copyDefaults(true);
@@ -277,15 +273,15 @@ public class Config {
         instance.getConfig().set("msg.papi-chest-is-unlocked", getPapiChestUnlocked());
 
         instance.getConfig().set("msg.papi-poz", getPapiPoz());
-        instance.getConfig().set("settings.spawn-max", getSpawnMax());
-        instance.getConfig().set("settings.spawn-min", getSpawnMin());
+      //  instance.getConfig().set("settings.spawn-max", getSpawnMax());
+       // instance.getConfig().set("settings.spawn-min", getSpawnMin());
         instance.getConfig().set("settings.empty-slot-chance", getEmptySlotChance());
         instance.getConfig().set("settings.time-start-interval", getTimeStartInterval());
         instance.getConfig().set("settings.duration-event", getTimeLockedChest());
         instance.getConfig().set("settings.time-stop-event", getTimeStopEvent());
-        instance.getConfig().set("settings.world", getWorld().getName());
+      //  instance.getConfig().set("settings.world", getWorld().getName());
         instance.getConfig().set("black-List", getBlackList());
-        instance.getConfig().set("msg.drop-name-holo", getDropNameHolo());
+      //  instance.getConfig().set("msg.drop-name-holo", getDropNameHolo());
         instance.getConfig().set("msg.drop-locked", getDropLocked());
         instance.getConfig().set("msg.msg-start-event", getMsgStartEvent());
         instance.getConfig().set("msg.drop-unlocked", getDropUnlocked());
@@ -307,7 +303,6 @@ public class Config {
         instance.getConfig().set("settings.min-online-players", getMinOnlinePlayers());
         instance.getConfig().set("msg.papi-event-is-activity", getPapiEventIsActivity());
         instance.getConfig().set("settings.effect-settings.explosion-power", getExplosionPower());
-        instance.getConfig().set("settings.radius-protect-block", getRadiusProtectBlock());
         instance.getConfig().set("settings.defenders.name", getDefendersName());
         instance.getConfig().set("msg.format-time", getFormatTime());
         instance.getConfig().set("msg.notification-time", getNotificationTime());

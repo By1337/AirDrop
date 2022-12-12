@@ -53,6 +53,8 @@ public class LasersManager implements Listener {
 
         for (Laser laser : laserList) {
             if (laser.getEnd().getX() == loc.getX() && laser.getEnd().getZ() == loc.getZ()) {
+                if(!laser.isStarted())
+                    return;
                 laser.stop();
                 laserList.remove(laser);
                 break;

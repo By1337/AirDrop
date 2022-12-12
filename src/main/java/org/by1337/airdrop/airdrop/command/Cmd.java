@@ -1,8 +1,6 @@
 package org.by1337.airdrop.airdrop.command;
 
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Chest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -11,12 +9,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.by1337.airdrop.airdrop.AirDrop;
 
-import org.by1337.airdrop.airdrop.AirSpawn;
+import org.by1337.airdrop.airdrop.AirRegion;
+import org.by1337.airdrop.airdrop.Chest;
 import org.by1337.airdrop.airdrop.Gui.GuiBuilder;
 import org.by1337.airdrop.airdrop.util.Message;
 
-import static org.by1337.airdrop.airdrop.AirSpawn.getAirLocation;
 import static org.by1337.airdrop.airdrop.util.CfgManager.Config.*;
+
 import java.util.*;
 
 import static org.by1337.airdrop.airdrop.AirDrop.*;
@@ -39,29 +38,66 @@ public class Cmd implements CommandExecutor {
                 Message.SendMsg(p, getUnknownCommand());
                 return true;
             }
-            if (args[0].equals("vr")) {
-                Message.SendMsg(p, "" + getConfigVersion());
-                return true;
-            }
-            if (args[0].equals("chest")) {
-                if (p.hasPermission("air.chest")) {
-                    p.getLocation().getBlock().setType(Material.CHEST);
-                    Sort();
-                    if (p.getLocation().getBlock().getState() instanceof Chest) {
-                        Chest chest = (Chest) p.getLocation().getBlock().getState();
-                        Inventory inv = chest.getBlockInventory();
-                        chest.getInventory().clear();
-                        for (int x = 0; x < chest.getInventory().getSize(); x++) {
-                            ItemStack item = GetItem();
-                            if (item != null)
-                                inv.setItem(x, item);
+            if (args.length >= 3) {
+                if (args[2].equals("tp")) {
+                    for (Chest chest : AirDrop.ChestList) {
+                        if (chest.getChestName().equals(args[1])) {
+                            if (chest.isEventActivity()) {
+                                p.teleport(chest.getAirLocation());
+                                Message.SendMsg(p, "&aTeleported!");
+                                return true;
+                            } else {
+                                Message.SendMsg(p, getNoEvent());
+                                return true;
+                            }
                         }
-                    } else {
-                        Message.Error("No chest was found at the spawn site!");
                     }
-                } else
-                    Message.SendMsg(p, getNoPrem());
+                    Message.SendMsg(p, "&cНет аирдропа с таким именем");
+                }
+                if (args[2].equals("start")) {
+                    for (Chest chest : AirDrop.ChestList) {
+                        if (chest.getChestName().equals(args[1])) {
+                            if (chest.isEventActivity()) {
+                                Message.SendMsg(p, "&cИвент уже начат!");
+                                return true;
+                            }
+                            chest.StartEvent();
+                            Message.SendMsg(p, "&aИвент начат");
+                            return true;
+                        }
+                    }
+                    Message.SendMsg(p, "&cНет аирдропа с таким именем");
+                }
+                if (args[2].equals("stop")) {
+                    for (Chest chest : AirDrop.ChestList) {
+                        if (chest.getChestName().equals(args[1])) {
+                            if(!chest.isEventActivity()){
+                                Message.SendMsg(p, getNoEvent());
+                                return true;
+                            }
+                            chest.Stop();
+                            Message.SendMsg(p, "&aИвент остановлен!");
+                            return true;
+                        }
+                    }
+                    Message.SendMsg(p, "&cНет аирдропа с таким именем");
+                }
+                if (args[2].equals("unlock")){
+                    for(Chest chest : AirDrop.ChestList){
+                        if(chest.getChestName().equals(args[1])){
+                            if(!chest.isEventActivity()){
+                                Message.SendMsg(p, getNoEvent());
+                                return true;
+                            }
+                            chest.Unlock();
+                            Message.SendMsg(p, "&aАирдроп открыт!");
+                            return true;
+                        }
+                    }
+                    Message.SendMsg(p, "&cНет аирдропа с таким именем");
+                }
             }
+
 
             if (args[0].equals("gui")) {
                 if (p.hasPermission("air.gui")) {
@@ -83,47 +119,6 @@ public class Cmd implements CommandExecutor {
                     Message.SendMsg(p, getNoPrem());
 
             }
-            if (args[0].equals("tp")) {
-                if (p.hasPermission("air.tp")) {
-                    if (AirSpawn.eventActivity)
-                        p.teleport(getAirLocation());
-                    else
-                        Message.SendMsg(p, getNoEvent());
-                } else
-                    Message.SendMsg(p, getNoPrem());
-                return true;
-            }
-
-            if (args[0].equals("unlock")) {
-                if (p.hasPermission("air.unlock")) {
-                    if (AirSpawn.eventActivity)
-                        AirDrop.Unlock();
-                    else
-                        Message.SendMsg(p, getNoEvent());
-                } else
-                    Message.SendMsg(p, getNoPrem());
-                return true;
-            }
-
-            if (args[0].equals("stop")) {
-                if (p.hasPermission("air.stop")) {
-                    if (AirSpawn.eventActivity)
-                        AirDrop.Stop();
-                    else
-                        Message.SendMsg(p, getNoEvent());
-                } else
-                    Message.SendMsg(p, getNoPrem());
-                return true;
-            }
-
-            if (args[0].equals("start")) {
-                if (p.hasPermission("air.start")) {
-                    AirDrop.Start();
-                } else
-                    Message.SendMsg(p, getNoPrem());
-                return true;
-            }
-
             if (args[0].equals("create")) {
                 if (p.hasPermission("air.create")) {
                     if (args.length >= 2) {
@@ -158,34 +153,16 @@ public class Cmd implements CommandExecutor {
                 if (p.hasPermission("pholo.reload")) {
                     plugin.reloadConfig();
                     LoadConfig();
+                    AirDrop.UnLoad();
+                    AirDrop.Load();
                     Message.SendMsg(p, getReload());
                     return true;
                 } else
                     Message.SendMsg(p, getNoPrem());
                 return true;
             }
+            Message.SendMsg(p, getUnknownCommand());
             return true;
-        } else {
-            if (args[0].equals("unlock")) {
-                if (AirSpawn.eventActivity)
-                    AirDrop.Unlock();
-                else
-                    Message.Logger(getNoEvent());
-                return true;
-            }
-            if (args[0].equals("stop")) {
-
-                if (AirSpawn.eventActivity)
-                    AirDrop.Stop();
-                else
-                    Message.Logger(getNoEvent());
-                return true;
-            }
-            if (args[0].equals("start")) {
-                AirDrop.Start();
-                return true;
-            }
-            Message.Warning(getOnlyPlayers());
         }
         return true;
     }
