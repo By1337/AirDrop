@@ -3,9 +3,7 @@ package org.by1337.airdrop.airdrop.util;
 import org.bukkit.inventory.ItemStack;
 import org.by1337.airdrop.airdrop.AirDrop;
 import org.by1337.airdrop.airdrop.util.CfgManager.Config;
-
 import java.util.List;
-
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GetRandomItem {
@@ -13,9 +11,9 @@ public class GetRandomItem {
 
     public static Short[] chance = AirDrop.baseItem.keySet().toArray(new Short[0]);
 
-    public static ItemStack GetItem(){
+    public static ItemStack GetItem(short boost){
         for (Short aShort : chance)
-            if (ThreadLocalRandom.current().nextInt(0, 100) < aShort && ThreadLocalRandom.current().nextInt(0, 100) > Config.getEmptySlotChance()) {
+            if (ThreadLocalRandom.current().nextInt(0, 100) < aShort + boost && ThreadLocalRandom.current().nextInt(0, 100) > Config.getEmptySlotChance()) {
                 List<ItemStack> item = AirDrop.baseItem.get(aShort);
                 return item.get(ThreadLocalRandom.current().nextInt(0, item.size()));
             }

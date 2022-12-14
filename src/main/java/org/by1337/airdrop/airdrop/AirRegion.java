@@ -4,11 +4,7 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
-
-
 import com.sk89q.worldguard.protection.flags.Flag;
-import com.sk89q.worldguard.protection.flags.Flags;
-
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.managers.RemovalStrategy;
@@ -18,11 +14,7 @@ import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Chest;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.by1337.airdrop.airdrop.util.Message;
 
 import static org.by1337.airdrop.airdrop.util.CfgManager.Config.*;
@@ -30,23 +22,25 @@ import static org.by1337.airdrop.airdrop.util.CfgManager.Config.*;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.sk89q.worldguard.protection.flags.StateFlag.State.*;
-import static org.by1337.airdrop.airdrop.util.GetRandomItem.GetItem;
-import static org.by1337.airdrop.airdrop.util.GetRandomItem.Sort;
+
 
 public class AirRegion {
 
-    public static Location RndLoc(String rgName, Location location, double size, World world, int spawnMin, int spawnMax) {
-        if (location != null)
-            return location;
+    private static HashMap<StateFlag, StateFlag.State> flags = new HashMap<>();
+
+    public static Location RndLoc(String rgName, double size, World world, int spawnMin, int spawnMax) {
         double x = ThreadLocalRandom.current().nextLong(spawnMin, spawnMax);
         double y = 100.0;
         double z = ThreadLocalRandom.current().nextLong(spawnMin, spawnMax);
         Location loc1 = new Location(world, x, y, z);
+        String worldType = String.valueOf(world.getEnvironment());
+        if (worldType.equals("THE_END"))
+            if (new Location(world, x, 50, z).getBlock().isEmpty())
+                return null;
         double y2 = Objects.requireNonNull(loc1.getWorld()).getHighestBlockAt(loc1).getLocation().getY();
         Location loc = new Location(world, x, y2 + 1, z);
 
-        if (Bukkit.getPluginManager().getPlugin("WorldGuard") == null){
+        if (Bukkit.getPluginManager().getPlugin("WorldGuard") == null) {
             Message.Error("Not found WorldGuard! WorldGuard check is off!");
             return loc;
         }
@@ -82,7 +76,7 @@ public class AirRegion {
     }
 
     public static void RemoveRegion(String rgName, World world) {
-       // World world = getWorld();
+        // World world = getWorld();
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionManager regions = container.get(BukkitAdapter.adapt(world));
         assert regions != null;
@@ -106,28 +100,37 @@ public class AirRegion {
         RegionManager regions = container.get(BukkitAdapter.adapt(world));
 
         assert regions != null;
-        for (String key : AirDrop.instance.getConfig().getConfigurationSection("settings.world-guard-flags").getKeys(false)) {
-            // Flag<?> flag = WorldGuard.getInstance().getFlagRegistry().get(key);
-            try {
-                String stateFlag = AirDrop.instance.getConfig().getString("settings.world-guard-flags." + key);
-                if (stateFlag.equalsIgnoreCase("allow"))
-                    rg.setFlag(new StateFlag(key, true), StateFlag.State.ALLOW);
-                else
-                    rg.setFlag(new StateFlag(key, true), DENY);
-            }catch (Exception e){
-                Message.Error(e.getLocalizedMessage());
-            }
 
+        try {
+            for (Map.Entry<StateFlag, StateFlag.State> entry : flags.entrySet())
+                rg.setFlag((Flag)entry.getKey(), entry.getValue());
+        }catch (Exception e){
+            Message.Error(e.getLocalizedMessage());
         }
-        rg.setFlag(Flags.PVP, ALLOW);
-        rg.setFlag(Flags.USE, ALLOW);
-        rg.setFlag(Flags.CHEST_ACCESS, ALLOW);
-        rg.setFlag(Flags.CREEPER_EXPLOSION, DENY);
-        rg.setFlag(Flags.TNT, DENY);
-        rg.setFlag(Flags.FIRE_SPREAD, DENY);
-        rg.setFlag(Flags.LAVA_FIRE, DENY);
-        rg.setFlag(Flags.OTHER_EXPLOSION, DENY);
         regions.addRegion(rg);
     }
 
+    public static void LoadFlags() {
+        for (String flag : AirDrop.instance.getConfig().getStringList("settings.world-guard-flags.allow-flags")) {
+            if (!addFlag(flag, true))
+                Message.Warning("Flag " + flag + " not loaded in");
+        }
+        for (String flag : AirDrop.instance.getConfig().getStringList("settings.world-guard-flags.deny-flags")) {
+            if (!addFlag(flag, false))
+                Message.Warning("Flag " + flag + " not loaded in");
+        }
+
+    }
+
+    private static boolean addFlag(String flagname, boolean state) {
+        Flag<?> flag = WorldGuard.getInstance().getFlagRegistry().get(flagname);
+        if (flag == null)
+            return false;
+        StateFlag stateFlag = (StateFlag) flag;
+        StateFlag.State saved_state = state ? StateFlag.State.ALLOW : StateFlag.State.DENY;
+        flags.put(stateFlag, saved_state);
+        return true;
+    }
 }
+
+

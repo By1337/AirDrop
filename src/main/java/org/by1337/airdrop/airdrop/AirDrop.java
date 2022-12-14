@@ -4,10 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.Vector;
 import org.by1337.airdrop.airdrop.Gui.ClickEvent;
 import org.by1337.airdrop.airdrop.Listener.Handler;
 import org.by1337.airdrop.airdrop.command.Cmd;
@@ -23,11 +21,9 @@ public final class AirDrop extends JavaPlugin implements Runnable {
 
     public static AirDrop instance;
     public static HashMap<Short, List<ItemStack>> baseItem = new HashMap<>();
-    public static int startDelay;
-    public static int chestLockedDelay;
-    public static int stopEventDelay;
-    private final HologramManager hologram = new HologramManager();
+
     public static List<org.by1337.airdrop.airdrop.Chest> ChestList = new ArrayList<>();
+    public static List<String> activeTasks = new ArrayList<>();
 
     public static void setInstance(AirDrop instance) {
         AirDrop.instance = instance;
@@ -38,6 +34,7 @@ public final class AirDrop extends JavaPlugin implements Runnable {
         setInstance(this);
 
         File config = new File(this.getDataFolder() + File.separator + "config.yml");
+
         if (!config.exists()) {
             this.getLogger().info("Creating new config file, please wait");
             this.getConfig().options().copyDefaults(true);
@@ -48,9 +45,6 @@ public final class AirDrop extends JavaPlugin implements Runnable {
         if (instance.getConfig().getConfigurationSection("data") != null)
             Load();
         Update();
-        startDelay = getTimeStartInterval() * 60;
-        chestLockedDelay = getTimeLockedChest() * 60;
-        stopEventDelay = getTimeStopEvent() * 60;
         Objects.requireNonNull(this.getCommand("airdrop")).setExecutor(new Cmd(this));
         Objects.requireNonNull(this.getCommand("airdrop")).setTabCompleter((new cmdCompleter()));
         getServer().getPluginManager().registerEvents(new Handler(this), this);
@@ -63,10 +57,11 @@ public final class AirDrop extends JavaPlugin implements Runnable {
 
     }
 
+
     private void Update() {
-        double currentVersion = 1.1;
+        double currentVersion = 1.2;
         if (getConfigVersion() == null || getConfigVersion() != currentVersion) {
-            Message.Logger("PX &aConfig update starts");
+            Message.Logger("{PP} &aConfig update starts");
             File config = new File(instance.getDataFolder() + File.separator + "config.yml");
             File configOld = new File(instance.getDataFolder() + File.separator + "config.yml.old");
             if (configOld.exists()) {
@@ -100,7 +95,7 @@ public final class AirDrop extends JavaPlugin implements Runnable {
                 Message.Error("Config update failed!");
                 return;
             }
-            Message.Logger("PX &aConfig Successfully updated!");
+            Message.Logger("{PP} &aConfig Successfully updated!");
         }
     }
 
@@ -110,11 +105,13 @@ public final class AirDrop extends JavaPlugin implements Runnable {
         instance.getConfig().set("data", null);
 
         for (short chance : baseItem.keySet()) {
-            instance.getConfig().set("data." + chance, baseItem.get(chance));
+            if(baseItem.get(chance).size() > 0)
+                instance.getConfig().set("data." + chance, baseItem.get(chance));
+            else
+                baseItem.remove(chance);
         }
         instance.saveConfig();
         GetRandomItem.chance = AirDrop.baseItem.keySet().toArray(new Short[0]);
-        Message.Logger("PX baseItem save &asuccessful!");
     }
 
     @SuppressWarnings("unchecked")
@@ -122,6 +119,10 @@ public final class AirDrop extends JavaPlugin implements Runnable {
         ChestList.clear();
         for (String key : Objects.requireNonNull(instance.getConfig().getConfigurationSection("chests")).getKeys(false)) {
             String chestId = instance.getConfig().getString("chests." + key + ".chest-id");
+            if(!chestId.equals(key)){
+                instance.getConfig().set("chests." + key + ".chest-id", key);
+                chestId = key;
+            }
             String chestName = instance.getConfig().getString("chests." + key + ".chest-name");
             int inventorySiz = instance.getConfig().getInt("chests." + key + ".chest-inventory-size");
             int chanceBoost = instance.getConfig().getInt("chests." + key + ".item-chance-boost");
@@ -132,17 +133,45 @@ public final class AirDrop extends JavaPlugin implements Runnable {
             World world = Bukkit.getWorld((String) Objects.requireNonNull(instance.getConfig().get("chests." + key + ".chest-spawn-world")));
             int spawnRadiusMin = instance.getConfig().getInt("chests." + key + ".chest-spawn-radius-min");
             int spawnRadiusMax = instance.getConfig().getInt("chests." + key + ".chest-spawn-radius-max");
-            Material materialLocked = Material.valueOf(instance.getConfig().getString("chests." + key + ".chest-material-locked"));
-            Material materialUnlocked = Material.valueOf(instance.getConfig().getString("chests." + key + ".chest-material-unlocked"));
+            Material materialLocked;
+            Material materialUnlocked;
+            try {
+                Enum.valueOf(Material.class, Objects.requireNonNull(instance.getConfig().getString("chests." + key + ".chest-material-locked")));
+                materialLocked = Material.valueOf(instance.getConfig().getString("chests." + key + ".chest-material-locked"));
+
+            } catch (Exception e) {
+                Message.Error("{PP} Матерьяла " + instance.getConfig().getString("chests." + key + ".chest-material-locked") + " не существует!");
+                materialLocked = Material.FURNACE;
+            }
+
+            try {
+                Enum.valueOf(Material.class, Objects.requireNonNull(instance.getConfig().getString("chests." + key + ".chest-material-unlocked")));
+                materialUnlocked = Material.valueOf(instance.getConfig().getString("chests." + key + ".chest-material-unlocked"));
+
+            } catch (Exception e) {
+                Message.Error("{PP} Матерьяла " + instance.getConfig().getString("chests." + key + ".chest-material-unlocked") + " не существует!");
+                materialUnlocked = Material.FURNACE;
+            }
+
+            if (!materialLocked.isBlock()) {
+                Message.Error("{PP} " + materialLocked.name() + " Не блок!");
+                materialLocked = Material.FURNACE;
+            }
+            if (!materialUnlocked.isBlock()) {
+                Message.Error("{PP} " + materialUnlocked.name() + " Не блок!");
+                materialUnlocked = Material.FURNACE;
+            }
+            int searchBeforeStart = instance.getConfig().getInt("chests." + key + ".search-before-start");
             int[] spawn = new int[2];
             spawn[0] = spawnRadiusMin;
             spawn[1] = spawnRadiusMax;
-            ChestList.add( new org.by1337.airdrop.airdrop.Chest(chestName, chestId, chanceBoost, world, spawn, radiusProtect, timeStartInterval, durationEvent, timeStopEvent, materialLocked, materialUnlocked, inventorySiz));
+            ChestList.add( new org.by1337.airdrop.airdrop.Chest(chestName, chestId, chanceBoost, world, spawn, radiusProtect, timeStartInterval, durationEvent, timeStopEvent, materialLocked, materialUnlocked, inventorySiz, searchBeforeStart));
         }
         baseItem.clear();
         for (String chance : instance.getConfig().getConfigurationSection("data").getKeys(false)) {
             baseItem.put(Short.valueOf(chance), (List<ItemStack>) instance.getConfig().getList("data." + chance));
         }
+        Save();
     }
 
     public static void UnLoad() {
@@ -157,11 +186,7 @@ public final class AirDrop extends JavaPlugin implements Runnable {
         Save();
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
             new PlaceholderExpansion(this).unregister();
-        if(!ChestList.isEmpty()){
-            for(Chest chest : ChestList){
-                AirRegion.RemoveRegion(chest.getRegionName(), chest.getWorld());
-            }
-        }
+        UnLoad();
 
 
     }

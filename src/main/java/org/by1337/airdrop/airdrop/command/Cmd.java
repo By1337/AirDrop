@@ -1,26 +1,18 @@
 package org.by1337.airdrop.airdrop.command;
 
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.by1337.airdrop.airdrop.AirDrop;
-
-import org.by1337.airdrop.airdrop.AirRegion;
 import org.by1337.airdrop.airdrop.Chest;
 import org.by1337.airdrop.airdrop.Gui.GuiBuilder;
 import org.by1337.airdrop.airdrop.util.Message;
-
 import static org.by1337.airdrop.airdrop.util.CfgManager.Config.*;
-
 import java.util.*;
-
 import static org.by1337.airdrop.airdrop.AirDrop.*;
-import static org.by1337.airdrop.airdrop.util.GetRandomItem.GetItem;
-import static org.by1337.airdrop.airdrop.util.GetRandomItem.Sort;
+
 
 public class Cmd implements CommandExecutor {
     private final AirDrop plugin;
@@ -38,6 +30,10 @@ public class Cmd implements CommandExecutor {
                 Message.SendMsg(p, getUnknownCommand());
                 return true;
             }
+            if (!p.hasPermission("air.*")) {
+                Message.SendMsg(p, getNoPrem());
+                return true;
+            }
             if (args.length >= 3) {
                 if (args[2].equals("tp")) {
                     for (Chest chest : AirDrop.ChestList) {
@@ -53,6 +49,7 @@ public class Cmd implements CommandExecutor {
                         }
                     }
                     Message.SendMsg(p, "&cНет аирдропа с таким именем");
+                    return true;
                 }
                 if (args[2].equals("start")) {
                     for (Chest chest : AirDrop.ChestList) {
@@ -62,16 +59,17 @@ public class Cmd implements CommandExecutor {
                                 return true;
                             }
                             chest.StartEvent();
-                            Message.SendMsg(p, "&aИвент начат");
+                            Message.SendMsg(p, "&aЗапуск ивента...");
                             return true;
                         }
                     }
                     Message.SendMsg(p, "&cНет аирдропа с таким именем");
+                    return true;
                 }
                 if (args[2].equals("stop")) {
                     for (Chest chest : AirDrop.ChestList) {
                         if (chest.getChestName().equals(args[1])) {
-                            if(!chest.isEventActivity()){
+                            if (!chest.isEventActivity()) {
                                 Message.SendMsg(p, getNoEvent());
                                 return true;
                             }
@@ -81,11 +79,12 @@ public class Cmd implements CommandExecutor {
                         }
                     }
                     Message.SendMsg(p, "&cНет аирдропа с таким именем");
+                    return true;
                 }
-                if (args[2].equals("unlock")){
-                    for(Chest chest : AirDrop.ChestList){
-                        if(chest.getChestName().equals(args[1])){
-                            if(!chest.isEventActivity()){
+                if (args[2].equals("unlock")) {
+                    for (Chest chest : AirDrop.ChestList) {
+                        if (chest.getChestName().equals(args[1])) {
+                            if (!chest.isEventActivity()) {
                                 Message.SendMsg(p, getNoEvent());
                                 return true;
                             }
@@ -95,6 +94,7 @@ public class Cmd implements CommandExecutor {
                         }
                     }
                     Message.SendMsg(p, "&cНет аирдропа с таким именем");
+                    return true;
                 }
             }
 
@@ -150,7 +150,7 @@ public class Cmd implements CommandExecutor {
                 return true;
             }
             if (args[0].equals("reload")) {
-                if (p.hasPermission("pholo.reload")) {
+                if (p.hasPermission("air.reload")) {
                     plugin.reloadConfig();
                     LoadConfig();
                     AirDrop.UnLoad();

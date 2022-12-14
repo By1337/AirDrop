@@ -1,29 +1,18 @@
 package org.by1337.airdrop.airdrop.util.CfgManager;
 
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-
-import java.io.File;
-import java.io.IOException;
+import org.by1337.airdrop.airdrop.AirRegion;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+
 
 import static org.by1337.airdrop.airdrop.AirDrop.instance;
 
 public class Config {
-  //  private static int spawnMax;
- //   private static int spawnMin;
-  //  private static World world;
+
     private static List<String> blackList = new ArrayList<String>();
-   // private static String dropNameHolo;
+
     private static String dropLocked;
-    private static int timeStartInterval;
-    private static int timeLockedChest;
-    private static int timeStopEvent;
+
     private static int minOnlinePlayers;
     private static List<String> formatTime;
     private static List<String> notificationTime;
@@ -55,25 +44,27 @@ public class Config {
     private static String defendersType;
     private static String papiPozNone;
     private static String papiChestUnlocked;
+    private static String dropOpenEvent;
+    private static String dropOpen;
+    private static String papiEventEnded;
 
 
     public static void LoadConfig() {
-        //  instance.saveDefaultConfig();
         papiPoz = instance.getConfig().getString("msg.papi-poz");
+        dropOpenEvent = instance.getConfig().getString("msg.drop-open-event");
+        dropOpen = instance.getConfig().getString("msg.drop-open");
+        papiEventEnded = instance.getConfig().getString("msg.papi-event-ended");
+
         papiPozNone = instance.getConfig().getString("msg.papi-poz-none");
         papiChestUnlocked = instance.getConfig().getString("msg.papi-chest-is-unlocked");
 
-     //   spawnMax = instance.getConfig().getInt("settings.spawn-max");
-     //   spawnMin = instance.getConfig().getInt("settings.spawn-min");
+
         emptySlotChance = instance.getConfig().getInt("settings.empty-slot-chance");
         minOnlinePlayers = instance.getConfig().getInt("settings.min-online-players");
 
-        timeStartInterval = instance.getConfig().getInt("settings.time-start-interval");
-        timeLockedChest = instance.getConfig().getInt("settings.duration-event");
-        timeStopEvent = instance.getConfig().getInt("settings.time-stop-event");
-      //  world = Bukkit.getWorld((String) Objects.requireNonNull(instance.getConfig().get("settings.world")));
+
         blackList = instance.getConfig().getStringList("black-List");
-      //  dropNameHolo = instance.getConfig().getString("msg.drop-name-holo");
+
         dropLocked = instance.getConfig().getString("msg.drop-locked");
         msgStartEvent = instance.getConfig().getString("msg.msg-start-event");
         dropUnlocked = instance.getConfig().getString("msg.drop-unlocked");
@@ -104,6 +95,7 @@ public class Config {
         notificationTime = instance.getConfig().getStringList("msg.notification-time");
         notificationOpenTime = instance.getConfig().getStringList("msg.notification-open-time");
         dropOpenEffect = instance.getConfig().getStringList("settings.effect-settings.drop-open-effect");
+        AirRegion.LoadFlags();
     }
 
     public static String getPapiPozNone() {
@@ -231,57 +223,45 @@ public class Config {
         return formatTime;
     }
 
-    public static int getTimeStartInterval() {
-        return timeStartInterval;
-    }
 
-    public static int getTimeLockedChest() {
-        return timeLockedChest;
-    }
-
-    public static int getTimeStopEvent() {
-        return timeStopEvent;
-    }
-
-//    public static String getDropNameHolo() {
-//        return dropNameHolo;
-//    }
 
     public static String getDropLocked() {
         return dropLocked;
     }
 
-  //  public static World getWorld() {
-  //      return world;
-  //  }
+
 
     public static List<String> getBlackList() {
         return blackList;
     }
 
-//    public static int getSpawnMax() {
-//        return spawnMax;
-//    }
-//
-//    public static int getSpawnMin() {
-//        return spawnMin;
-//    }
+
+
+    public static String getDropOpenEvent() {
+        return dropOpenEvent;
+    }
+
+    public static String getDropOpen() {
+        return dropOpen;
+    }
+
+    public static String getPapiEventEnded() {
+        return papiEventEnded;
+    }
 
     public static void SetConfig() {
         instance.getConfig().options().copyDefaults(true);
         instance.getConfig().set("msg.papi-poz-none", getPapiPozNone());
         instance.getConfig().set("msg.papi-chest-is-unlocked", getPapiChestUnlocked());
-
+        instance.getConfig().set("msg.drop-open-event", getDropOpenEvent());
+        instance.getConfig().set("msg.drop-open", getDropOpen());
+        instance.getConfig().set("msg.papi-event-ended", getPapiEventEnded());
         instance.getConfig().set("msg.papi-poz", getPapiPoz());
-      //  instance.getConfig().set("settings.spawn-max", getSpawnMax());
-       // instance.getConfig().set("settings.spawn-min", getSpawnMin());
+
         instance.getConfig().set("settings.empty-slot-chance", getEmptySlotChance());
-        instance.getConfig().set("settings.time-start-interval", getTimeStartInterval());
-        instance.getConfig().set("settings.duration-event", getTimeLockedChest());
-        instance.getConfig().set("settings.time-stop-event", getTimeStopEvent());
-      //  instance.getConfig().set("settings.world", getWorld().getName());
+
         instance.getConfig().set("black-List", getBlackList());
-      //  instance.getConfig().set("msg.drop-name-holo", getDropNameHolo());
+
         instance.getConfig().set("msg.drop-locked", getDropLocked());
         instance.getConfig().set("msg.msg-start-event", getMsgStartEvent());
         instance.getConfig().set("msg.drop-unlocked", getDropUnlocked());

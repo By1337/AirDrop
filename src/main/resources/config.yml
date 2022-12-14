@@ -5,50 +5,66 @@
 # {x}, {y}, {z} координаты аирдропа
 # {name} имя аирдропа
 # {world} мир в котором появится аирдроп
+# {px} заменяется на prefix. Во всех сообщениях
 chests:
-  default:
-    chest-id: default
+  default: # тут
+    chest-id: default # и тут должно совпадать
     chest-name: '&7Обычный сундук'
     chest-inventory-size: 54
-    item-chance-boost: 0 #не работает
-    chest-spawn-world: world
-    chest-spawn-radius-min: -2000
-    chest-spawn-radius-max: 2000
-    chest-radius-protect: 15
+    item-chance-boost: 0 #На сколько повысить шанс выпадения предметов. Если поставить 10, то предметы с шансом выпадения 5% станут 15%, а если поставить -10, то предметы с шансом выпадения ниже 10 вовсе не выпадут
+    chest-spawn-world: world #Мир появления
+    chest-spawn-radius-min: -2000 #Минимальная координата спавна
+    chest-spawn-radius-max: 2000 #Максимальная координата спавна
+    chest-radius-protect: 15 #Радиус защиты блока
     time-start-interval: 2 #Сколько до начала в минутах
+    search-before-start: 1 #За сколько до начала ивента начинать искать локацию для аирдропа. Ставьте 5 или 10 минут до начала
     duration-event: 1 #сколько будет закрыт сундук
     time-stop-event: 1 #через сколько после начала пропадёт аирдроп
+    chest-material-locked: RESPAWN_ANCHOR #Матерьял который будет пока аирдроп закрыт
+    chest-material-unlocked: CHEST #Матерьял который будет после открытия аирдропа
+    helix: 'DOUBLE-HELIX' #Варианты HELIX, DOUBLE-HELIX, NONE # Настройки спиралей ниже
+    random-particle: true # true / false ниже настройка эффекта
+  end: # пример настроеного аирдропа
+    chest-id: end #
+    chest-name: '&dЭндер аирдроп'
+    chest-inventory-size: 54
+    item-chance-boost: 10
+    chest-spawn-world: world_the_end
+    chest-spawn-radius-min: -3500
+    chest-spawn-radius-max: 3500
+    chest-radius-protect: 15
+    time-start-interval: 90
+    search-before-start: 5
+    duration-event: 10
+    time-stop-event: 15
     chest-material-locked: RESPAWN_ANCHOR
     chest-material-unlocked: CHEST
     helix: 'DOUBLE-HELIX' #Варианты HELIX, DOUBLE-HELIX, NONE # Настройки спиралей ниже
-    random-particle: true # true / false ниже настройка эффекта
+    random-particle: true
 
-# {px} заменяется на prefix. Во всех сообщениях
 config-version: 1
 settings:
-  world-guard-flags: #не работает
-    PVP: ALLOW
-    USE: ALLOW
-    CHEST_ACCESS: ALLOW
-    CREEPER_EXPLOSION: DENY
-    TNT: DENY
-    FIRE_SPREAD: DENY
-    LAVA_FIRE: DENY
-    OTHER_EXPLOSION: DENY
+  world-guard-flags: #Флаги WorldGuar
+    allow-flags: #разрешённые
+      - use
+      - pvp
+      - chest-access
+    deny-flags: #запрещённые
+      - creeper-explosion
+      - tnt
+      - fire-spread
+      - lava-fire
+      - other-explosion
+
   #настройки спавна аирдропа
   min-online-players: 1 #минимальное количество игроков на сервере для старта ивента
-  #настройки таймингов появления аирдропа
-  time-start-interval: 2 #Сколько до начала в минутах
-  duration-event: 1 #сколько будет закрыт сундук
-  time-stop-event: 1 #через сколько после начала пропадёт аирдроп
-  #прочее
   empty-slot-chance: 25 #Шанс того что слот будет пустым от 0 до 100. 0 - отключит, а 100 сделает сундуки всегда пустыми
   laser-settings: #Настройки лазера
     laser: 'CRYSTAL_LASER' # варианты: CRYSTAL_LASER, GUARDIAN_LASER, NONE
     laser-view-distance: 50 # в блоках
     laser-time: 300 # в секундах
   effect-settings: #Настройки эфектов
-    explosion-power: 4.75 #Сила взрыва для Эфекта Explosion. 4.75 = взрыву заряженного крипера
+    explosion-power: 4.75 #Сила взрыва для Эфекта Explosion
     drop-open-effect: # Что будет происходить когда аир дроп откроется варианты - strikeLightning (молния), fireWork (фейерверк), explosion (взрыв, блоки не взорвутся), fakeStrikeLightning (будет эффект удара молнии без нанесения урона)
       - explosion
       - strikeLightning
@@ -113,28 +129,32 @@ settings:
     name: "&c&lХранитель"
     type: VINDICATOR # все мобы - https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/Entity.html список под текстом 'All Known Subinterfaces:'
 msg:
+  drop-open-event: '&fИгрок &6{player} &7первым добрался до {name}!'
+  drop-open: '{px} {name} &fоткрыт на координатах &6{x}, {y}, {z} &f В мире: {world}'
+  drop-locked: '&cЗакрыто. Откроется через {time3_locked}' #Вторая строчка над сундуком
+  chest-locked: '{px} &cСундук закрыт!' # Выводится когда, игрок пытается открыть сундук
+  drop-unlocked: '&aОткрыто' # Вторая строчка над сундуком
+  drop-spawning: '{px} {name} &fтолько что &6появился &fна координатах &6{x}, {y}, {z}' # Выводится когда ивент начался
+  event-end: '{px} {name} &7окончен!' # Выводится когда закончился
+  msg-open-event: '{px} {name} &fоткроется через &6{time2_locked}!' # notification-open-time
+  msg-start-event: '{px} {name} &fпоявится через &6{time2_start}!' # notification-time
+
+  prefix: '&7[&6АирДроп&7]' #Заменяет {px}
   item-del: '&c&lПКМ &f- удалить предмет из списка'
   unknown-command: '&cНеизвестная команда'
-  invalid-key: '&cПредметов с таким ключом нет!'
-  only-players: 'Only players!'
-  reload: '&aКонфиг перезагружен!'
-  item-add: '&aПредметы добавлены по ключу {key}'
-  error-number: '&cОшибка возможно вы ввели не число! детали в консоли'
-  prefix: '&7[&6АирДроп&7]' #Заменяет {px}
-  drop-locked: '&cЗакрыто. Откроется через {time3_locked}' #Вторая строчка над сундуком
-  drop-unlocked: '&aОткрыто' # Вторая строчка над сундуком
-  chest-locked: '{px} &cСундук закрыт!' # Выводится когда, игрок пытается открыть сундук
+  invalid-key: '{PP} &cПредметов с таким ключом нет!'
+  only-players: '{PP} Only players!'
+  reload: '{PP} &aКонфиг перезагружен!'
+  item-add: '{PP} &aПредметы добавлены по ключу {key}'
+  error-number: '{PP} &cОшибка возможно вы ввели не число! детали в консоли'
   no-prem: '&cУ Вас нет разрешения!' # Выводится когда у игрока нет разрешения
-  no-event: '{px} &cИзвините но ивент не начат!'
-  few-arguments: '{px} &cМало аргументов!'
-  drop-spawning: '{px} {name} &7только что &6появился &fна координатах &6{x}, {y}, {z}' # Выводится когда ивент начался
-  event-end: '{px} {name} &7окончен!' # Выводится когда закончился
-  msg-open-event: '{px} {name} &aоткроется &fчерез &6{time2_locked}!' # notification-open-time
-  msg-start-event: '{px} {name} &aпоявится &fчерез &6{time2_start}!' # notification-time
+  no-event: '{PP} {px} &cИзвините но ивент не начат!'
+  few-arguments: '{PP} {px} &cМало аргументов!'
   papi-event-is-activity: '&aНачат!'
+  papi-event-ended: '&aИвент окончен'
   papi-chest-is-unlocked: '&aУже открыт!'
   papi-poz: '{x}, {y}, {z}'
-  papi-poz-none: '&cНет активного ивента!' #Используют %airdrop_poz%, %airdrop_locked% и %airdrop_locked2%
+  papi-poz-none: '&cНет активного ивента!'
   notification-open-time: [60, 30, 10, 5, 3, 2, 1] #за сколько до открытия сундука выводить сообщение о его предстоящем открытии в секундах
   notification-time: [60, 30, 10, 5, 3, 2, 1] #за сколько до начала ивента выводить сообщение о его предстоящем начале в секундах
   format-time: # Формат вывода времени
@@ -150,6 +170,10 @@ msg:
     - ' час '
     - ' минуту '
     - ' секунду'
+  world-localization: # Название мира и то как оно будет отображаться в сообщениях от плагина например spawn_world: 'Спавн' или world_1: '1 анархия'
+    world: 'Обычный мир'
+    world_the_end: 'Эндер мир'
+    world_nether: 'Нижний мир'
 
 black-List:
   - LAVA
@@ -172,3 +196,19 @@ black-List:
   - JUNGLE_LEAVES
 
 data: # тут хранятся предметы
+  '100':
+    - ==: org.bukkit.inventory.ItemStack
+      v: 2975
+      type: DIRT
+      meta:
+        ==: ItemMeta
+        meta-type: UNSPECIFIC
+        display-name: '{"extra":[{"bold":false,"italic":false,"underlined":false,"strikethrough":false,"obfuscated":false,"color":"gold","text":"Демо
+        предмет"}],"text":""}'
+        lore:
+          - '{"extra":[{"bold":false,"italic":false,"underlined":false,"strikethrough":false,"obfuscated":false,"color":"white","text":"Для
+        изменения списка предметов"}],"text":""}'
+          - '{"extra":[{"bold":false,"italic":false,"underlined":false,"strikethrough":false,"obfuscated":false,"color":"white","text":"используйте
+        "},{"italic":false,"color":"gold","text":"/air gui <шанс>"}],"text":""}'
+          - '{"extra":[{"bold":false,"italic":false,"underlined":false,"strikethrough":false,"obfuscated":false,"color":"white","text":"и
+        "},{"italic":false,"color":"gold","text":"/air create <шанс>"}],"text":""}'

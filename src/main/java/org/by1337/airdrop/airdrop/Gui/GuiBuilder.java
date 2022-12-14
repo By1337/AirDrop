@@ -12,7 +12,6 @@ import static org.bukkit.inventory.ItemFlag.*;
 import java.util.ArrayList;
 import java.util.List;
 import static org.by1337.airdrop.airdrop.AirDrop.baseItem;
-
 public class GuiBuilder {
     public static Inventory menuInventory = Bukkit.createInventory(null, 54, "AirDrop Editor loot");
     public static int pageNumber = 0;

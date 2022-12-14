@@ -1,9 +1,6 @@
 package org.by1337.airdrop.airdrop;
 
 import org.bukkit.*;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -11,8 +8,6 @@ import org.by1337.airdrop.airdrop.util.Effect;
 import org.by1337.airdrop.airdrop.util.HologramManager;
 import org.by1337.airdrop.airdrop.util.LasersManager;
 import org.by1337.airdrop.airdrop.util.Message;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 import static org.by1337.airdrop.airdrop.AirDrop.*;
 import static org.by1337.airdrop.airdrop.util.CfgManager.Config.*;
@@ -37,6 +32,7 @@ public class Chest {
     int ConsChestLockedDelay;
     int ConsStopEventDelay;
     int chestInventorySize;
+    int searchBeforeStart;
     Material lockedMaterial;
     Material unlockedMaterial;
 
@@ -44,9 +40,10 @@ public class Chest {
     Location newLocation;
     private boolean eventActivity = false;
     private boolean chestLocked = false;
+    private boolean itWasOpen = false;
     private final HologramManager hologram = new HologramManager();
 
-    public Chest(String displayName, String chestName, int chanceBoost, World world, int[] spawn, int radiusProtect, int startDelay, int chestLockedDelay, int stopEventDelay, Material lockedMaterial, Material unlockedMaterial, int chestInventorySize) {
+    public Chest(String displayName, String chestName, int chanceBoost, World world, int[] spawn, int radiusProtect, int startDelay, int chestLockedDelay, int stopEventDelay, Material lockedMaterial, Material unlockedMaterial, int chestInventorySize, int searchBeforeStart) {
         DisplayName = displayName;
         this.chestName = chestName;
         this.chanceBoost = chanceBoost;
@@ -54,6 +51,7 @@ public class Chest {
         this.spawnMin = spawn[0];
         this.spawnMax = spawn[1];
         this.radiusProtect = radiusProtect;
+        this.searchBeforeStart = searchBeforeStart * 60;
 
         this.startDelay = startDelay * 60;
         this.chestLockedDelay = chestLockedDelay * 60;
@@ -69,17 +67,18 @@ public class Chest {
         regionName = this.chestName + "_region";
     }
 
-    public void End() {
+    public void End() { //насильно стопнуть ивент
         airLocation = null;
         newLocation = null;
         chestLocked = false;
         eventActivity = false;
+        itWasOpen = false;
         startDelay = ConsStartDelay;
         chestLockedDelay = ConsChestLockedDelay;
         stopEventDelay = ConsStopEventDelay;
     }
 
-    public void Stop() {
+    public void Stop() { //остановить ивент
         chestLockedDelay = 0;
         stopEventDelay = 0;
         startDelay = ConsStartDelay;
@@ -104,7 +103,15 @@ public class Chest {
         if (getAirLocation() != null)
             BuildMessage = BuildMessage.replace("{x}", "" + getAirLocation().getX()).replace("{y}", "" + getAirLocation().getY()).replace("{z}", "" + getAirLocation().getZ());
         BuildMessage = BuildMessage.replace("{name}", DisplayName);
-        BuildMessage = BuildMessage.replace("{world}", world.getName());
+        if (BuildMessage.contains("{world}")) {
+            for (String key : instance.getConfig().getConfigurationSection("msg.world-localization").getKeys(false)) {
+                if (key.equalsIgnoreCase(world.getName())) {
+                    BuildMessage = BuildMessage.replace("{world}", instance.getConfig().getString("msg.world-localization." + key));
+                    break;
+                }
+            }
+        }
+
         return BuildMessage;
     }
 
@@ -112,29 +119,30 @@ public class Chest {
         if (eventActivity) {
             Particle();
         }
-        if (startDelay <= 0 && !eventActivity && Bukkit.getOnlinePlayers().size() >= getMinOnlinePlayers()) {
+        if (startDelay <= 0 && !eventActivity && Bukkit.getOnlinePlayers().size() >= getMinOnlinePlayers() && newLocation != null) {//старт ивента
             Start();
             LasersManager.createLaser(getAirLocation());
             Message.SendAllMsg(CodeReplace(getDropSpawning()));
-        } else if (!eventActivity) {
+        } else if (!eventActivity) {//отнимаем от таймера до начала ивента
             if (getNotificationTime().contains(String.valueOf(startDelay)))
                 Message.SendAllMsg(CodeReplace(getMsgStartEvent()));
             startDelay--;
         }
         if (eventActivity) {
-            if (chestLockedDelay <= 0 && chestLocked) {
+            if (chestLockedDelay <= 0 && chestLocked) { //Открываем аирдроп
                 chestLocked = false;
                 getAirLocation().getBlock().setType(unlockedMaterial);
+                Message.SendAllMsg(CodeReplace(getDropOpen()));
 
                 AirDrop.Effects(airLocation);
-            } else if (chestLocked) {
+            } else if (chestLocked) {//отнимаем от таймера до открытия
                 if (getNotificationOpenTime().contains(String.valueOf(chestLockedDelay)))
                     Message.SendAllMsg(CodeReplace(getMsgOpenEvent()));
                 chestLockedDelay--;
             }
         }
 
-        if (eventActivity && stopEventDelay <= 0) {
+        if (eventActivity && stopEventDelay <= 0) {//стопаем ивент
             chestInventory.clear();
             getAirLocation().getBlock().setType(Material.AIR);
             LasersManager.removeLaser(getAirLocation());
@@ -142,28 +150,63 @@ public class Chest {
             RemoveRegion(regionName, getWorld());
             End();
             Message.SendAllMsg(CodeReplace(getEventEnd()));
-            startDelay = getTimeStartInterval() * 60;
-            chestLockedDelay = getTimeLockedChest() * 60;
-            stopEventDelay = getTimeStopEvent() * 60;
-        } else if (eventActivity && chestLockedDelay <= 0) {
+        } else if (eventActivity && chestLockedDelay <= 0) {//отнимаем от таймера до конца ивента
             stopEventDelay--;
         }
-        if (eventActivity && getAirLocation() != null) {
+        if (eventActivity && getAirLocation() != null) {//
             hologram.HoloCreate(new Location(getAirLocation().getWorld(), getAirLocation().getX() + 0.5, getAirLocation().getY() + 1.7, getAirLocation().getZ() + 0.5), regionName, DisplayName);
             hologram.HoloUpdate(chestLockedDelay, chestLocked, regionName);
         }
+        if (startDelay <= searchBeforeStart) {
+            if (newLocation == null) {
+                if (activeTasks.size() == 0) {
+                    newLocation = RndLoc(regionName, radiusProtect, world, spawnMin, spawnMax);
+                    activeTasks.add(chestName);
+                //    Message.Logger("Ищу локацию для " + chestName);
+                } else if (activeTasks.contains(chestName)) {
+                    newLocation = RndLoc(regionName, radiusProtect, world, spawnMin, spawnMax);
+                //    Message.Logger("Ищу локацию для " + chestName);
+                }
 
-        newLocation = RndLoc(regionName, newLocation, radiusProtect, world, spawnMin, spawnMax);
+            }
+            if (newLocation != null) {
+                if (activeTasks.size() != 0) {
+                    if (activeTasks.removeIf(task -> task.equals(chestName))) {
+                      //  Message.Logger("Нашёл локацию для " + chestName + " и удалил его из активных задач");
+                    }
 
+                }
+            }
+        }
 
+        if (eventActivity) {
+            boolean empty = true;
+            for (ItemStack item : chestInventory.getContents()) {
+                if (item != null && item.getType() != Material.AIR) {
+                    empty = false;
+                    break;
+                }
+            }
+            if (empty) {
+                Stop();
+            }
+        }
+    }
+
+    public void PlayerOpenChest(String name) {
+        if (!itWasOpen) {
+            Message.SendAllMsg(CodeReplace(getDropOpenEvent().replace("{player}", name)));
+            itWasOpen = true;
+        }
     }
 
     public void Start() {
         chestLocked = true;
         if (newLocation == null) {
-            Message.Warning("Заранее сгенерированная локация имеет значение null! Не критичная ошибка.");
-            while (newLocation == null)
-                newLocation = RndLoc(regionName, newLocation, radiusProtect, world, spawnMin, spawnMax);
+            Message.Error("Локация для аирдропа не определенна!");
+            Message.Error("Аирдроп появится как только будет найдено подходящее место для его спавна!");
+            StartEvent();
+            return;
         } else
             setAirLocation(newLocation);
         getAirLocation().getBlock().setType(lockedMaterial);
@@ -173,24 +216,25 @@ public class Chest {
         RemoveRegion(regionName, getWorld());
         SetRegion(regionName, getAirLocation(), radiusProtect);
         for (int x = 0; x < chestInventory.getSize(); x++) {
-            ItemStack item = GetItem();
+            ItemStack item = GetItem((short) chanceBoost);
             if (item != null)
                 chestInventory.setItem(x, item);
         }
         eventActivity = true;
 
     }
-    public void Destroyer(){
-        if(getAirLocation() != null)
+
+    public void Destroyer() {
+        if (getAirLocation() != null) {
             getAirLocation().getBlock().setType(Material.AIR);
-        LasersManager.removeLaser(getAirLocation());
+            LasersManager.removeLaser(getAirLocation());
+        }
         hologram.HoloDel(regionName);
         RemoveRegion(regionName, getWorld());
     }
 
-    //public static void createHelix(Location loc, double radius, Color color, int viewDistance, int height, Vector vector, double helixPitch) {
 
-    private void Particle(){
+    private void Particle() {
         String helixType = instance.getConfig().getString("chests." + chestName + ".helix");
         if (helixType.equalsIgnoreCase("helix")) {
             double radius = instance.getConfig().getDouble("settings.effect-settings.helix-settings.radius");
@@ -250,7 +294,7 @@ public class Chest {
             Effect.createDoubleHelix(getAirLocation(), radius, color, color1, viewDistance, height, vector, helixPitch);
         }
 
-        if(instance.getConfig().getBoolean("chests." + chestName + ".random-particle")){
+        if (instance.getConfig().getBoolean("chests." + chestName + ".random-particle")) {
             String[] particle = new String[2];
             int amount = instance.getConfig().getInt("settings.effect-settings.random-particle.amount");
             int radius = instance.getConfig().getInt("settings.effect-settings.random-particle.radius");
@@ -259,7 +303,7 @@ public class Chest {
             particle[1] = instance.getConfig().getString("settings.effect-settings.random-particle.particle2");
             try {
                 Effect.createRandomParticle(getAirLocation(), radius, particle, amount, viewDistance);
-            }catch (Exception e){
+            } catch (Exception e) {
                 Message.Error("Ошибка при создании рандомных партиклов");
                 Message.Error(e.getLocalizedMessage());
 
@@ -307,5 +351,17 @@ public class Chest {
 
     public World getWorld() {
         return world;
+    }
+
+    public int getStartDelay() {
+        return startDelay;
+    }
+
+    public int getChestLockedDelay() {
+        return chestLockedDelay;
+    }
+
+    public int getStopEventDelay() {
+        return stopEventDelay;
     }
 }
