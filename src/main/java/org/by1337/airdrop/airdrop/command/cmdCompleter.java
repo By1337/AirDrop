@@ -20,23 +20,24 @@ public class cmdCompleter implements TabCompleter {
         if (sender instanceof Player) {
             p = (Player) sender;
             if (sender.hasPermission("air.*")) {
-                if (args[0].equals("chest") && args.length <= 2) {
+                if (args.length == 1) {
                     List<String> list = new ArrayList<>();
-                    for(Chest chest : AirDrop.ChestList){
+                    for (Chest chest : AirDrop.ChestList) {
                         list.add(chest.getChestName());
                     }
+                    list.add("reload");
+                    list.add("create");
+                    list.add("gui");
                     return list;
+                }
 
-                }
-                if (args.length == 1) {
-                    return List.of(
-                            "reload",
-                            "create",
-                            "gui",
-                            "chest"
-                    );
-                }
-                if (args.length == 3) {
+                if(args[0].equals("create"))
+                    return List.of("<chance>");
+                if(args[0].equals("reload"))
+                    return List.of(" ");
+                if(args.length == 3 && !args[0].equals("gui"))
+                    return List.of("<time>");
+                if (args.length == 2 && !args[0].equals("gui")) {
                     return List.of(
                             "tp",
                             "start",
@@ -52,16 +53,8 @@ public class cmdCompleter implements TabCompleter {
                     return list;
 
                 }
+
             }
-        } else {
-                if (args.length == 2) {
-                    return List.of(
-                            "reload",
-                            "start",
-                            "unlock",
-                            "stop"
-                    );
-                }
         }
         return null;
     }

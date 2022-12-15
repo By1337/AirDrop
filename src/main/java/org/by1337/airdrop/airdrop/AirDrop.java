@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.configuration.file.YamlConfigurationOptions;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.by1337.airdrop.airdrop.Gui.ClickEvent;
@@ -59,9 +60,10 @@ public final class AirDrop extends JavaPlugin implements Runnable {
 
 
     private void Update() {
-        double currentVersion = 1.2;
+        double currentVersion = 1.3;
         if (getConfigVersion() == null || getConfigVersion() != currentVersion) {
             Message.Logger("{PP} &aConfig update starts");
+            Object chest = instance.getConfig().get("chests");
             File config = new File(instance.getDataFolder() + File.separator + "config.yml");
             File configOld = new File(instance.getDataFolder() + File.separator + "config.yml.old");
             if (configOld.exists()) {
@@ -84,6 +86,7 @@ public final class AirDrop extends JavaPlugin implements Runnable {
                 instance.saveDefaultConfig();
                 instance.saveConfig();
                 instance.reloadConfig();
+                instance.getConfig().set("chests", chest);
                 SetConfig();
                 instance.getConfig().set("config-version", currentVersion);
                 Save();

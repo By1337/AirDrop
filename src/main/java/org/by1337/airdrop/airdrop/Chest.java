@@ -9,6 +9,8 @@ import org.by1337.airdrop.airdrop.util.HologramManager;
 import org.by1337.airdrop.airdrop.util.LasersManager;
 import org.by1337.airdrop.airdrop.util.Message;
 
+import java.util.Objects;
+
 import static org.by1337.airdrop.airdrop.AirDrop.*;
 import static org.by1337.airdrop.airdrop.util.CfgManager.Config.*;
 import static org.by1337.airdrop.airdrop.AirRegion.*;
@@ -89,13 +91,13 @@ public class Chest {
         startDelay = 0;
     }
 
-    public void StartEvent() {
+    public void StartEvent(int timeStart) {
         chestLockedDelay = ConsChestLockedDelay;
         stopEventDelay = ConsStopEventDelay;
-        startDelay = 0;
+        startDelay = timeStart;
     }
 
-    private String CodeReplace(String str) {
+    public String CodeReplace(String str) {
         String BuildMessage = str;
         BuildMessage = BuildMessage.replace("{time_start}", Format(startDelay)).replace("{time2_start}", Format2(startDelay)).replace("{time3_start}", Format3(startDelay));
         BuildMessage = BuildMessage.replace("{time_locked}", Format(chestLockedDelay)).replace("{time2_locked}", Format2(chestLockedDelay)).replace("{time3_locked}", Format3(chestLockedDelay));
@@ -106,12 +108,12 @@ public class Chest {
         if (BuildMessage.contains("{world}")) {
             for (String key : instance.getConfig().getConfigurationSection("msg.world-localization").getKeys(false)) {
                 if (key.equalsIgnoreCase(world.getName())) {
-                    BuildMessage = BuildMessage.replace("{world}", instance.getConfig().getString("msg.world-localization." + key));
-                    break;
+                    BuildMessage = BuildMessage.replace("{world}", Objects.requireNonNull(instance.getConfig().getString("msg.world-localization." + key)));
+                    return BuildMessage;
                 }
             }
         }
-
+        BuildMessage = BuildMessage.replace("{world}", world.getName());
         return BuildMessage;
     }
 
@@ -154,8 +156,8 @@ public class Chest {
             stopEventDelay--;
         }
         if (eventActivity && getAirLocation() != null) {//
-            hologram.HoloCreate(new Location(getAirLocation().getWorld(), getAirLocation().getX() + 0.5, getAirLocation().getY() + 1.7, getAirLocation().getZ() + 0.5), regionName, DisplayName);
-            hologram.HoloUpdate(chestLockedDelay, chestLocked, regionName);
+            hologram.HoloCreate(new Location(getAirLocation().getWorld(), getAirLocation().getX() + 0.5, getAirLocation().getY(), getAirLocation().getZ() + 0.5), regionName, DisplayName);
+            hologram.HoloUpdate(this);
         }
         if (startDelay <= searchBeforeStart) {
             if (newLocation == null) {
@@ -205,7 +207,7 @@ public class Chest {
         if (newLocation == null) {
             Message.Error("Локация для аирдропа не определенна!");
             Message.Error("Аирдроп появится как только будет найдено подходящее место для его спавна!");
-            StartEvent();
+            StartEvent(0);
             return;
         } else
             setAirLocation(newLocation);

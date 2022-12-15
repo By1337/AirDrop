@@ -131,8 +131,7 @@ settings:
 msg:
   drop-open-event: '&fИгрок &6{player} &7первым добрался до {name}!'
   drop-open: '{px} {name} &fоткрыт на координатах &6{x}, {y}, {z} &f В мире: {world}'
-  drop-locked: '&cЗакрыто. Откроется через {time3_locked}' #Вторая строчка над сундуком
-  chest-locked: '{px} &cСундук закрыт!' # Выводится когда, игрок пытается открыть сундук
+  
   drop-unlocked: '&aОткрыто' # Вторая строчка над сундуком
   drop-spawning: '{px} {name} &fтолько что &6появился &fна координатах &6{x}, {y}, {z}' # Выводится когда ивент начался
   event-end: '{px} {name} &7окончен!' # Выводится когда закончился
@@ -148,8 +147,8 @@ msg:
   item-add: '{PP} &aПредметы добавлены по ключу {key}'
   error-number: '{PP} &cОшибка возможно вы ввели не число! детали в консоли'
   no-prem: '&cУ Вас нет разрешения!' # Выводится когда у игрока нет разрешения
-  no-event: '{PP} {px} &cИзвините но ивент не начат!'
-  few-arguments: '{PP} {px} &cМало аргументов!'
+  no-event: '{PP} &cИзвините но ивент не начат!'
+  few-arguments: '{PP} &cМало аргументов!'
   papi-event-is-activity: '&aНачат!'
   papi-event-ended: '&aИвент окончен'
   papi-chest-is-unlocked: '&aУже открыт!'
@@ -174,6 +173,15 @@ msg:
     world: 'Обычный мир'
     world_the_end: 'Эндер мир'
     world_nether: 'Нижний мир'
+
+  holograms-lines:
+    locked:
+      - '&k0000000000000000000000000000000'
+      - '{name} &cЗакрыт {time3_locked}'
+      - '&k0000000000000000000000000000000'
+    unlocked:
+      - '{name}'
+      - '&aОткрыто'
 
 black-List:
   - LAVA

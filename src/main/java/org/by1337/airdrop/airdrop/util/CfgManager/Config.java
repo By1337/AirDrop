@@ -11,15 +11,16 @@ public class Config {
 
     private static List<String> blackList = new ArrayList<String>();
 
-    private static String dropLocked;
-
     private static int minOnlinePlayers;
     private static List<String> formatTime;
     private static List<String> notificationTime;
     private static List<String> notificationOpenTime;
     private static List<String> dropOpenEffect;
+
+    private static List<String> hologramsLinesLocked;
+    private static List<String> hologramsLinesUnlocked;
     private static String msgStartEvent;
-    private static String dropUnlocked;
+
     private static String noPrem;
     private static String noEvent;
     private static String fewArguments;
@@ -50,6 +51,7 @@ public class Config {
 
 
     public static void LoadConfig() {
+
         papiPoz = instance.getConfig().getString("msg.papi-poz");
         dropOpenEvent = instance.getConfig().getString("msg.drop-open-event");
         dropOpen = instance.getConfig().getString("msg.drop-open");
@@ -65,9 +67,10 @@ public class Config {
 
         blackList = instance.getConfig().getStringList("black-List");
 
-        dropLocked = instance.getConfig().getString("msg.drop-locked");
+        hologramsLinesLocked = instance.getConfig().getStringList("msg.holograms-lines.locked");
+        hologramsLinesUnlocked = instance.getConfig().getStringList("msg.holograms-lines.unlocked");
+
         msgStartEvent = instance.getConfig().getString("msg.msg-start-event");
-        dropUnlocked = instance.getConfig().getString("msg.drop-unlocked");
         noPrem = instance.getConfig().getString("msg.no-prem");
         noEvent = instance.getConfig().getString("msg.no-event");
         fewArguments = instance.getConfig().getString("msg.few-arguments");
@@ -207,9 +210,6 @@ public class Config {
         return noPrem;
     }
 
-    public static String getDropUnlocked() {
-        return dropUnlocked;
-    }
 
     public static List<String> getNotificationTime() {
         return notificationTime;
@@ -221,12 +221,6 @@ public class Config {
 
     public static List<String> getFormatTime() {
         return formatTime;
-    }
-
-
-
-    public static String getDropLocked() {
-        return dropLocked;
     }
 
 
@@ -249,7 +243,17 @@ public class Config {
         return papiEventEnded;
     }
 
+    public static List<String> getHologramsLinesLocked() {
+        return hologramsLinesLocked;
+    }
+
+    public static List<String> getHologramsLinesUnlocked() {
+        return hologramsLinesUnlocked;
+    }
+
     public static void SetConfig() {
+         instance.getConfig().set("msg.holograms-lines.locked", getHologramsLinesLocked());
+         instance.getConfig().set("msg.holograms-lines.unlocked", getHologramsLinesUnlocked());
         instance.getConfig().options().copyDefaults(true);
         instance.getConfig().set("msg.papi-poz-none", getPapiPozNone());
         instance.getConfig().set("msg.papi-chest-is-unlocked", getPapiChestUnlocked());
@@ -262,9 +266,7 @@ public class Config {
 
         instance.getConfig().set("black-List", getBlackList());
 
-        instance.getConfig().set("msg.drop-locked", getDropLocked());
         instance.getConfig().set("msg.msg-start-event", getMsgStartEvent());
-        instance.getConfig().set("msg.drop-unlocked", getDropUnlocked());
         instance.getConfig().set("msg.no-prem", getNoPrem());
         instance.getConfig().set("msg.no-event", getNoEvent());
         instance.getConfig().set("msg.few-arguments", getFewArguments());

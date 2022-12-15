@@ -7,6 +7,8 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.by1337.airdrop.airdrop.AirDrop;
 import org.by1337.airdrop.airdrop.util.CfgManager.Config;
+
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +31,14 @@ public class Message {
     }
 
     public static void Error(String msg) {
-        SENDER.sendMessage(ChatColor.RED + MessageBuilder(msg));
+       // SENDER.sendMessage(ChatColor.RED + MessageBuilder(msg));
+        AirDrop.instance.getLogger().log(Level.SEVERE, msg);
+        for(Player pl : Bukkit.getOnlinePlayers()){
+            if(pl.hasPermission("air.error")){
+                msg = msg.replace("{PP}", prefixPlugin + " &#cb2d3e[&#d1313dE&#d7363dR&#dd3a3cR&#e33e3bO&#e9433bR&#ef473a]&c");
+                SendMsg(pl, "&c" + msg);
+            }
+        }
     }
 
     public static void Warning(String msg) {

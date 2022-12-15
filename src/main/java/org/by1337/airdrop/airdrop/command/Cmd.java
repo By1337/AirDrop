@@ -30,14 +30,16 @@ public class Cmd implements CommandExecutor {
                 Message.SendMsg(p, getUnknownCommand());
                 return true;
             }
-            if (!p.hasPermission("air.*")) {
-                Message.SendMsg(p, getNoPrem());
-                return true;
-            }
-            if (args.length >= 3) {
-                if (args[2].equals("tp")) {
+            if (args.length >= 2) {
+                if (args[1].equals("tp")) {
+
+                    if (!p.hasPermission("air.tp")) {
+                        Message.SendMsg(p, getNoPrem());
+                        return true;
+                    }
+
                     for (Chest chest : AirDrop.ChestList) {
-                        if (chest.getChestName().equals(args[1])) {
+                        if (chest.getChestName().equals(args[0])) {
                             if (chest.isEventActivity()) {
                                 p.teleport(chest.getAirLocation());
                                 Message.SendMsg(p, "&aTeleported!");
@@ -51,14 +53,33 @@ public class Cmd implements CommandExecutor {
                     Message.SendMsg(p, "&cНет аирдропа с таким именем");
                     return true;
                 }
-                if (args[2].equals("start")) {
+                if (args[1].equals("start")) {
+
+                    if (!p.hasPermission("air.start")) {
+                        Message.SendMsg(p, getNoPrem());
+                        return true;
+                    }
+
                     for (Chest chest : AirDrop.ChestList) {
-                        if (chest.getChestName().equals(args[1])) {
+                        if (chest.getChestName().equals(args[0])) {
                             if (chest.isEventActivity()) {
                                 Message.SendMsg(p, "&cИвент уже начат!");
                                 return true;
                             }
-                            chest.StartEvent();
+                            if(args.length == 3){
+                                int time;
+                                try {
+                                    time = Integer.parseInt(args[2]);
+                                }catch (ClassCastException e){
+                                    Message.SendMsg(p, "{PP} &cЭто не число!");
+                                    Message.SendMsg(p, "&c" + e.getLocalizedMessage());
+                                    return true;
+                                }
+                                chest.StartEvent(time * 60);
+                                Message.SendMsg(p, "&aЗапуск ивента через " + time + " минут");
+                                return true;
+                            }
+                            chest.StartEvent(0);
                             Message.SendMsg(p, "&aЗапуск ивента...");
                             return true;
                         }
@@ -66,9 +87,15 @@ public class Cmd implements CommandExecutor {
                     Message.SendMsg(p, "&cНет аирдропа с таким именем");
                     return true;
                 }
-                if (args[2].equals("stop")) {
+                if (args[1].equals("stop")) {
+
+                    if (!p.hasPermission("air.stop")) {
+                        Message.SendMsg(p, getNoPrem());
+                        return true;
+                    }
+
                     for (Chest chest : AirDrop.ChestList) {
-                        if (chest.getChestName().equals(args[1])) {
+                        if (chest.getChestName().equals(args[0])) {
                             if (!chest.isEventActivity()) {
                                 Message.SendMsg(p, getNoEvent());
                                 return true;
@@ -81,9 +108,15 @@ public class Cmd implements CommandExecutor {
                     Message.SendMsg(p, "&cНет аирдропа с таким именем");
                     return true;
                 }
-                if (args[2].equals("unlock")) {
+                if (args[1].equals("unlock")) {
+
+                    if (!p.hasPermission("air.unlock")) {
+                        Message.SendMsg(p, getNoPrem());
+                        return true;
+                    }
+
                     for (Chest chest : AirDrop.ChestList) {
-                        if (chest.getChestName().equals(args[1])) {
+                        if (chest.getChestName().equals(args[0])) {
                             if (!chest.isEventActivity()) {
                                 Message.SendMsg(p, getNoEvent());
                                 return true;
@@ -100,6 +133,12 @@ public class Cmd implements CommandExecutor {
 
 
             if (args[0].equals("gui")) {
+
+                if (!p.hasPermission("air.gui")) {
+                    Message.SendMsg(p, getNoPrem());
+                    return true;
+                }
+
                 if (p.hasPermission("air.gui")) {
                     if (args.length >= 2) {
                         Short[] chance = AirDrop.baseItem.keySet().toArray(new Short[0]);
@@ -117,9 +156,15 @@ public class Cmd implements CommandExecutor {
                         Message.SendMsg(p, getFewArguments());
                 } else
                     Message.SendMsg(p, getNoPrem());
-
+                return true;
             }
             if (args[0].equals("create")) {
+
+                if (!p.hasPermission("air.create")) {
+                    Message.SendMsg(p, getNoPrem());
+                    return true;
+                }
+
                 if (p.hasPermission("air.create")) {
                     if (args.length >= 2) {
                         List<ItemStack> list = new ArrayList<>();
@@ -139,6 +184,7 @@ public class Cmd implements CommandExecutor {
                         } catch (Exception e) {
                             Message.SendMsg(p, getErrorNumber());
                             Message.Error("" + e.getLocalizedMessage());
+                            return true;
                         }
 
                         Save();
