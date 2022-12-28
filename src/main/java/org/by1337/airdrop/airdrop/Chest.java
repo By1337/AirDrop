@@ -1,6 +1,9 @@
 package org.by1337.airdrop.airdrop;
 
 import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.RespawnAnchor;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -135,7 +138,7 @@ public class Chest {
                 chestLocked = false;
                 getAirLocation().getBlock().setType(unlockedMaterial);
                 Message.SendAllMsg(CodeReplace(getDropOpen()));
-
+                SoundOpenEvent();
                 AirDrop.Effects(airLocation);
             } else if (chestLocked) {//отнимаем от таймера до открытия
                 if (getNotificationOpenTime().contains(String.valueOf(chestLockedDelay)))
@@ -145,6 +148,7 @@ public class Chest {
         }
 
         if (eventActivity && stopEventDelay <= 0) {//стопаем ивент
+            SoundEndEvent();
             chestInventory.clear();
             getAirLocation().getBlock().setType(Material.AIR);
             LasersManager.removeLaser(getAirLocation());
@@ -164,17 +168,17 @@ public class Chest {
                 if (activeTasks.size() == 0) {
                     newLocation = RndLoc(regionName, radiusProtect, world, spawnMin, spawnMax);
                     activeTasks.add(chestName);
-                //    Message.Logger("Ищу локацию для " + chestName);
+                    //    Message.Logger("Ищу локацию для " + chestName);
                 } else if (activeTasks.contains(chestName)) {
                     newLocation = RndLoc(regionName, radiusProtect, world, spawnMin, spawnMax);
-                //    Message.Logger("Ищу локацию для " + chestName);
+                    //    Message.Logger("Ищу локацию для " + chestName);
                 }
 
             }
             if (newLocation != null) {
                 if (activeTasks.size() != 0) {
                     if (activeTasks.removeIf(task -> task.equals(chestName))) {
-                      //  Message.Logger("Нашёл локацию для " + chestName + " и удалил его из активных задач");
+                        //  Message.Logger("Нашёл локацию для " + chestName + " и удалил его из активных задач");
                     }
 
                 }
@@ -193,6 +197,12 @@ public class Chest {
                 Stop();
             }
         }
+
+        if(getNotificationUnlockSoundTime().contains(chestLockedDelay))
+            SoundNotificationEvent("unlock");
+        if(getNotificationStartSoundTime().contains(startDelay))
+            SoundNotificationEvent("start");
+
     }
 
     public void PlayerOpenChest(String name) {
@@ -212,6 +222,34 @@ public class Chest {
         } else
             setAirLocation(newLocation);
         getAirLocation().getBlock().setType(lockedMaterial);
+        ///SOUND-EFFECT//START-EVENT///
+        if (instance.getConfig().getBoolean("settings.effect-settings.sound-effect.start-event.play-sound")) {
+            String sound = instance.getConfig().getString("settings.effect-settings.sound-effect.start-event.sound");
+            String listeners = instance.getConfig().getString("settings.effect-settings.sound-effect.start-event.listeners");
+            switch (Objects.requireNonNull(listeners)) {
+                case "all":
+                    try {
+                        Message.PlaySoundAllOnline(Sound.valueOf(sound));
+                    } catch (Exception e) {
+                        Message.Error("sound-effect - start-event");
+                        Message.Error(e.getLocalizedMessage());
+                    }
+                    break;
+
+                case "near":
+                    try {
+                        Message.PlaySoundNear(Sound.valueOf(sound), 30, getAirLocation());
+                    } catch (Exception e) {
+                        Message.Error("sound-effect - start-event");
+                        Message.Error(e.getLocalizedMessage());
+                    }
+                    break;
+                default:
+                    Message.Error("Unknown listener - " + listeners);
+                    Message.Error("Неизвестный слушатель - " + listeners);
+                    break;
+            }
+        }
         Sort();
 
         chestInventory = Bukkit.createInventory(null, chestInventorySize, Message.MessageBuilder(DisplayName));
@@ -235,6 +273,126 @@ public class Chest {
         RemoveRegion(regionName, getWorld());
     }
 
+    private void SoundOpenEvent() {
+        ///SOUND-EFFECT//OPEN-EVENT///
+        if (instance.getConfig().getBoolean("settings.effect-settings.sound-effect.open-event.play-sound")) {
+            String sound = instance.getConfig().getString("settings.effect-settings.sound-effect.open-event.sound");
+            String listeners = instance.getConfig().getString("settings.effect-settings.sound-effect.open-event.listeners");
+            switch (Objects.requireNonNull(listeners)) {
+                case "all":
+                    try {
+                        Message.PlaySoundAllOnline(Sound.valueOf(sound));
+                    } catch (Exception e) {
+                        Message.Error("sound-effect - open-event");
+                        Message.Error(e.getLocalizedMessage());
+                    }
+                    break;
+
+                case "near":
+                    try {
+                        Message.PlaySoundNear(Sound.valueOf(sound), 30, getAirLocation());
+                    } catch (Exception e) {
+                        Message.Error("sound-effect - open-event");
+                        Message.Error(e.getLocalizedMessage());
+                    }
+                    break;
+                default:
+                    Message.Error("Unknown listener - " + listeners);
+                    Message.Error("Неизвестный слушатель - " + listeners);
+                    break;
+            }
+        }
+    }
+
+    private void SoundEndEvent() {
+        ///SOUND-EFFECT//END-EVENT///
+        if (instance.getConfig().getBoolean("settings.effect-settings.sound-effect.end-event.play-sound")) {
+            String sound = instance.getConfig().getString("settings.effect-settings.sound-effect.end-event.sound");
+            String listeners = instance.getConfig().getString("settings.effect-settings.sound-effect.end-event.listeners");
+            switch (Objects.requireNonNull(listeners)) {
+                case "all":
+                    try {
+                        Message.PlaySoundAllOnline(Sound.valueOf(sound));
+                    } catch (Exception e) {
+                        Message.Error("sound-effect - end-event");
+                        Message.Error(e.getLocalizedMessage());
+                    }
+                    break;
+
+                case "near":
+                    try {
+                        Message.PlaySoundNear(Sound.valueOf(sound), 30, getAirLocation());
+                    } catch (Exception e) {
+                        Message.Error("sound-effect - end-event");
+                        Message.Error(e.getLocalizedMessage());
+                    }
+                    break;
+                default:
+                    Message.Error("Unknown listener - " + listeners);
+                    Message.Error("Неизвестный слушатель - " + listeners);
+                    break;
+            }
+        }
+    }
+
+    private void SoundNotificationEvent(String str) {
+        if (str.equals("start"))///SOUND-EFFECT//NOTIFICATION-START-SOUND///
+            if (instance.getConfig().getBoolean("settings.effect-settings.sound-effect.notification-start-sound.play-sound")) {
+                String sound = instance.getConfig().getString("settings.effect-settings.sound-effect.notification-start-sound.sound");
+                String listeners = instance.getConfig().getString("settings.effect-settings.sound-effect.notification-start-sound.listeners");
+                switch (Objects.requireNonNull(listeners)) {
+                    case "all":
+                        try {
+                            Message.PlaySoundAllOnline(Sound.valueOf(sound));
+                        } catch (Exception e) {
+                            Message.Error("sound-effect - notification-start-sound");
+                            Message.Error(e.getLocalizedMessage());
+                        }
+                        break;
+
+                    case "near":
+                        try {
+                            Message.PlaySoundNear(Sound.valueOf(sound), 30, getAirLocation());
+                        } catch (Exception e) {
+                            Message.Error("sound-effect - notification-start-sound");
+                            Message.Error(e.getLocalizedMessage());
+                        }
+                        break;
+                    default:
+                        Message.Error("Unknown listener - " + listeners);
+                        Message.Error("Неизвестный слушатель - " + listeners);
+                        break;
+                }
+            }
+        if (str.equals("unlock"))///SOUND-EFFECT//NOTIFICATION-UNLOCK-SOUND///
+            if (instance.getConfig().getBoolean("settings.effect-settings.sound-effect.notification-unlock-sound.play-sound")) {
+                String sound = instance.getConfig().getString("settings.effect-settings.sound-effect.notification-unlock-sound.sound");
+                String listeners = instance.getConfig().getString("settings.effect-settings.sound-effect.notification-unlock-sound.listeners");
+                switch (Objects.requireNonNull(listeners)) {
+                    case "all":
+                        try {
+                            Message.PlaySoundAllOnline(Sound.valueOf(sound));
+                        } catch (Exception e) {
+                            Message.Error("sound-effect - notification-unlock-sound");
+                            Message.Error(e.getLocalizedMessage());
+                        }
+                        break;
+
+                    case "near":
+                        try {
+                            Message.PlaySoundNear(Sound.valueOf(sound), 30, getAirLocation());
+                        } catch (Exception e) {
+                            Message.Error("sound-effect - notification-unlock-sound");
+                            Message.Error(e.getLocalizedMessage());
+                        }
+                        break;
+                    default:
+                        Message.Error("Unknown listener - " + listeners);
+                        Message.Error("Неизвестный слушатель - " + listeners);
+                        break;
+                }
+            }
+    }
 
     private void Particle() {
         String helixType = instance.getConfig().getString("chests." + chestName + ".helix");

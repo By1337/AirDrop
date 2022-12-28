@@ -1,11 +1,11 @@
 package org.by1337.airdrop.airdrop;
 
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.configuration.file.YamlConfigurationOptions;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.by1337.airdrop.airdrop.Gui.ClickEvent;
 import org.by1337.airdrop.airdrop.Listener.Handler;
@@ -46,8 +46,8 @@ public final class AirDrop extends JavaPlugin implements Runnable {
         if (instance.getConfig().getConfigurationSection("data") != null)
             Load();
         Update();
-        Objects.requireNonNull(this.getCommand("airdrop")).setExecutor(new Cmd(this));
-        Objects.requireNonNull(this.getCommand("airdrop")).setTabCompleter((new cmdCompleter()));
+        Objects.requireNonNull(this.getCommand("aairdrop")).setExecutor(new Cmd(this));
+        Objects.requireNonNull(this.getCommand("aairdrop")).setTabCompleter((new cmdCompleter()));
         getServer().getPluginManager().registerEvents(new Handler(this), this);
         getServer().getPluginManager().registerEvents(new ClickEvent(), this);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, this, 20L, 20L);
@@ -60,10 +60,11 @@ public final class AirDrop extends JavaPlugin implements Runnable {
 
 
     private void Update() {
-        double currentVersion = 1.3;
+        double currentVersion = 1.4;
         if (getConfigVersion() == null || getConfigVersion() != currentVersion) {
             Message.Logger("{PP} &aConfig update starts");
             Object chest = instance.getConfig().get("chests");
+            Object sounds = instance.getConfig().get("settings.effect-settings.sound-effect");
             File config = new File(instance.getDataFolder() + File.separator + "config.yml");
             File configOld = new File(instance.getDataFolder() + File.separator + "config.yml.old");
             if (configOld.exists()) {
@@ -87,8 +88,10 @@ public final class AirDrop extends JavaPlugin implements Runnable {
                 instance.saveConfig();
                 instance.reloadConfig();
                 instance.getConfig().set("chests", chest);
+                instance.getConfig().set("settings.effect-settings.sound-effect", sounds);
                 SetConfig();
                 instance.getConfig().set("config-version", currentVersion);
+
                 Save();
                 instance.saveConfig();
                 instance.reloadConfig();

@@ -2,13 +2,13 @@ name: AirDrop
 version: '${project.version}'
 main: org.by1337.airdrop.airdrop.AirDrop
 depend: [PlaceholderAPI, DecentHolograms, WorldGuard, WorldEdit]
-api-version: 1.16
+api-version: 1.13
 authors: [ By1337 ]
 description: Event AirDrop!
 commands:
-  airdrop:
+  aairdrop:
     description: Standart Command
-    aliases: [air]
+    aliases: [aair, air, airdrop]
     usage: Usage /air help
 permissions:
   air.*:

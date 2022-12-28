@@ -71,6 +71,43 @@ settings:
       - fireWork
       - fakeStrikeLightning
       - defenders
+    sound-effect: #Список всех звуков - https://helpch.at/docs/1.16.5/org/bukkit/Sound.html
+      start-event: # Начало ивента
+        play-sound: false
+        sound: BLOCK_STONE_BUTTON_CLICK_ON
+        listeners: all #Варианты all - все онлайн игроки, near - игроки возле аирдропа
+
+      open-event: # открытие аирдропа
+        play-sound: false
+        sound: BLOCK_STONE_BUTTON_CLICK_ON
+        listeners: near #Варианты all - все онлайн игроки, near - игроки возле аирдропа
+
+      end-event: # конец ивента
+        play-sound: false
+        sound: BLOCK_STONE_BUTTON_CLICK_ON
+        listeners: all #Варианты all - все онлайн игроки, near - игроки возле аирдропа
+
+      click-event: # Когда кто-то кликает по закрытому аирдропу
+        play-sound: false
+        sound: BLOCK_STONE_BUTTON_CLICK_ON
+        listeners: player #Варианты all - все онлайн игроки, near - игроки возле аирдропа, player - игрок вызвавший ивент
+
+      click-open-event: # Когда кто-то открывает аирдроп
+        play-sound: false
+        sound: BLOCK_STONE_BUTTON_CLICK_ON
+        listeners: player #Варианты all - все онлайн игроки, near - игроки возле аирдропа, player - игрок вызвавший ивент
+
+      notification-start-sound: # Проигрывается звук 'notification-start-sound-time' в это время
+        play-sound: false
+        sound: BLOCK_STONE_BUTTON_CLICK_ON
+        listeners: all #Варианты all - все онлайн игроки, near - игроки возле аирдропа
+
+      notification-unlock-sound: # Проигрывается звук 'notification-start-unlock-time' в это время
+        play-sound: false
+        sound: BLOCK_STONE_BUTTON_CLICK_ON
+        listeners: near #Варианты all - все онлайн игроки, near - игроки возле аирдропа
+
+
     #Настройки Спиралей
     helix-settings:
       close: #цвет когда аирдроп закрыт
@@ -128,16 +165,16 @@ settings:
   defenders: #мобы охранники
     name: "&c&lХранитель"
     type: VINDICATOR # все мобы - https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/Entity.html список под текстом 'All Known Subinterfaces:'
+
 msg:
   drop-open-event: '&fИгрок &6{player} &7первым добрался до {name}!'
   drop-open: '{px} {name} &fоткрыт на координатах &6{x}, {y}, {z} &f В мире: {world}'
-  
-  drop-unlocked: '&aОткрыто' # Вторая строчка над сундуком
+
   drop-spawning: '{px} {name} &fтолько что &6появился &fна координатах &6{x}, {y}, {z}' # Выводится когда ивент начался
   event-end: '{px} {name} &7окончен!' # Выводится когда закончился
   msg-open-event: '{px} {name} &fоткроется через &6{time2_locked}!' # notification-open-time
   msg-start-event: '{px} {name} &fпоявится через &6{time2_start}!' # notification-time
-
+  chest-locked: '{px} &cСундук закрыт!'
   prefix: '&7[&6АирДроп&7]' #Заменяет {px}
   item-del: '&c&lПКМ &f- удалить предмет из списка'
   unknown-command: '&cНеизвестная команда'
@@ -146,7 +183,7 @@ msg:
   reload: '{PP} &aКонфиг перезагружен!'
   item-add: '{PP} &aПредметы добавлены по ключу {key}'
   error-number: '{PP} &cОшибка возможно вы ввели не число! детали в консоли'
-  no-prem: '&cУ Вас нет разрешения!' # Выводится когда у игрока нет разрешения
+  no-prem: '&cУ Вас нет разрешения!'
   no-event: '{PP} &cИзвините но ивент не начат!'
   few-arguments: '{PP} &cМало аргументов!'
   papi-event-is-activity: '&aНачат!'
@@ -156,6 +193,8 @@ msg:
   papi-poz-none: '&cНет активного ивента!'
   notification-open-time: [60, 30, 10, 5, 3, 2, 1] #за сколько до открытия сундука выводить сообщение о его предстоящем открытии в секундах
   notification-time: [60, 30, 10, 5, 3, 2, 1] #за сколько до начала ивента выводить сообщение о его предстоящем начале в секундах
+  notification-unlock-sound-time: [10, 5, 3, 2, 1] #за сколько до открытия проигрывать звук
+  notification-start-sound-time: [10, 5, 3, 2, 1] #за сколько до старта проигрывать звук
   format-time: # Формат вывода времени
     - ' час '
     - ' часа '
@@ -202,21 +241,4 @@ black-List:
   - SPRUCE_LEAVES
   - FLOWERING_AZALEA_LEAVES
   - JUNGLE_LEAVES
-
-data: # тут хранятся предметы
-  '100':
-    - ==: org.bukkit.inventory.ItemStack
-      v: 2975
-      type: DIRT
-      meta:
-        ==: ItemMeta
-        meta-type: UNSPECIFIC
-        display-name: '{"extra":[{"bold":false,"italic":false,"underlined":false,"strikethrough":false,"obfuscated":false,"color":"gold","text":"Демо
-        предмет"}],"text":""}'
-        lore:
-          - '{"extra":[{"bold":false,"italic":false,"underlined":false,"strikethrough":false,"obfuscated":false,"color":"white","text":"Для
-        изменения списка предметов"}],"text":""}'
-          - '{"extra":[{"bold":false,"italic":false,"underlined":false,"strikethrough":false,"obfuscated":false,"color":"white","text":"используйте
-        "},{"italic":false,"color":"gold","text":"/air gui <шанс>"}],"text":""}'
-          - '{"extra":[{"bold":false,"italic":false,"underlined":false,"strikethrough":false,"obfuscated":false,"color":"white","text":"и
-        "},{"italic":false,"color":"gold","text":"/air create <шанс>"}],"text":""}'
+data:

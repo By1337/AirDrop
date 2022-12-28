@@ -1,6 +1,7 @@
 package org.by1337.airdrop.airdrop.util.CfgManager;
 
 import org.by1337.airdrop.airdrop.AirRegion;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class Config {
 
     private static List<String> hologramsLinesLocked;
     private static List<String> hologramsLinesUnlocked;
+
     private static String msgStartEvent;
 
     private static String noPrem;
@@ -48,10 +50,12 @@ public class Config {
     private static String dropOpenEvent;
     private static String dropOpen;
     private static String papiEventEnded;
-
+    private static List<Integer> notificationUnlockSoundTime;
+    private static List<Integer> notificationStartSoundTime;
 
     public static void LoadConfig() {
-
+        notificationUnlockSoundTime = instance.getConfig().getIntegerList("msg.notification-unlock-sound-time");
+        notificationStartSoundTime = instance.getConfig().getIntegerList("msg.notification-start-sound-time");
         papiPoz = instance.getConfig().getString("msg.papi-poz");
         dropOpenEvent = instance.getConfig().getString("msg.drop-open-event");
         dropOpen = instance.getConfig().getString("msg.drop-open");
@@ -99,6 +103,14 @@ public class Config {
         notificationOpenTime = instance.getConfig().getStringList("msg.notification-open-time");
         dropOpenEffect = instance.getConfig().getStringList("settings.effect-settings.drop-open-effect");
         AirRegion.LoadFlags();
+    }
+
+    public static List<Integer> getNotificationStartSoundTime() {
+        return notificationStartSoundTime;
+    }
+
+    public static List<Integer> getNotificationUnlockSoundTime() {
+        return notificationUnlockSoundTime;
     }
 
     public static String getPapiPozNone() {
@@ -224,11 +236,9 @@ public class Config {
     }
 
 
-
     public static List<String> getBlackList() {
         return blackList;
     }
-
 
 
     public static String getDropOpenEvent() {
@@ -252,8 +262,10 @@ public class Config {
     }
 
     public static void SetConfig() {
-         instance.getConfig().set("msg.holograms-lines.locked", getHologramsLinesLocked());
-         instance.getConfig().set("msg.holograms-lines.unlocked", getHologramsLinesUnlocked());
+        instance.getConfig().set("msg.notification-start-sound-time", getNotificationStartSoundTime());
+        instance.getConfig().set("msg.notification-unlock-sound-time", getNotificationUnlockSoundTime());
+        instance.getConfig().set("msg.holograms-lines.locked", getHologramsLinesLocked());
+        instance.getConfig().set("msg.holograms-lines.unlocked", getHologramsLinesUnlocked());
         instance.getConfig().options().copyDefaults(true);
         instance.getConfig().set("msg.papi-poz-none", getPapiPozNone());
         instance.getConfig().set("msg.papi-chest-is-unlocked", getPapiChestUnlocked());

@@ -3,11 +3,15 @@ package org.by1337.airdrop.airdrop.util;
 import eu.decentsoftware.holograms.api.utils.PAPI;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.by1337.airdrop.airdrop.AirDrop;
 import org.by1337.airdrop.airdrop.util.CfgManager.Config;
 
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,6 +45,21 @@ public class Message {
         }
     }
 
+    public static void PlaySound(Player pl, Sound sound){
+        pl.playSound(pl.getLocation(), sound, 1, 0);
+    }
+    public static void PlaySoundAllOnline(Sound sound){
+        for(Player pl : Bukkit.getOnlinePlayers())
+            pl.playSound(pl.getLocation(), sound, 1, 0);
+    }
+    public static void PlaySoundNear(Sound sound, int distance, Location loc){
+        for (Entity entity : loc.getWorld().getNearbyEntities(loc, distance, distance, distance)) {
+            if (entity instanceof Player) {
+                Player p = (Player) entity;
+                p.playSound(p.getLocation(), sound, 1, 0);
+            }
+        }
+    }
     public static void Warning(String msg) {
         AirDrop.instance.getLogger().warning(MessageBuilder(msg));
         // SENDER.sendMessage(ChatColor.YELLOW + MessageBuilder(msg));
