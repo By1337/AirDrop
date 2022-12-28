@@ -1,74 +1,200 @@
-# {time} Выводит 1 минута. {time2} Выводит 1 минуту. Работает не во всех сообщениях!
+# {time_n} Выводит 1 минута. {time2_n} Выводит 1 минуту. {time3_n} Выводит чч:мм:сс. Работает не во всех сообщениях!
+# {time_start}, {time2_start}, {time3_start} Время до начала ивента
+# {time_locked}, {time2_locked}, {time3_locked} Время до открытия аирдропа
+# {time_end}, {time2_end}, {time3_end} Время до окончания аирдропа
+# {x}, {y}, {z} координаты аирдропа
+# {name} имя аирдропа
+# {world} мир в котором появится аирдроп
 # {px} заменяется на prefix. Во всех сообщениях
+chests:
+  default: # тут
+    chest-id: default # и тут должно совпадать
+    chest-name: '&7Обычный сундук'
+    chest-inventory-size: 54
+    item-chance-boost: 0 #На сколько повысить шанс выпадения предметов. Если поставить 10, то предметы с шансом выпадения 5% станут 15%, а если поставить -10, то предметы с шансом выпадения ниже 10 вовсе не выпадут
+    chest-spawn-world: world #Мир появления
+    chest-spawn-radius-min: -2000 #Минимальная координата спавна
+    chest-spawn-radius-max: 2000 #Максимальная координата спавна
+    chest-radius-protect: 15 #Радиус защиты блока
+    time-start-interval: 2 #Сколько до начала в минутах
+    search-before-start: 1 #За сколько до начала ивента начинать искать локацию для аирдропа. Ставьте 5 или 10 минут до начала
+    duration-event: 1 #сколько будет закрыт сундук
+    time-stop-event: 1 #через сколько после начала пропадёт аирдроп
+    chest-material-locked: RESPAWN_ANCHOR #Матерьял который будет пока аирдроп закрыт
+    chest-material-unlocked: CHEST #Матерьял который будет после открытия аирдропа
+    helix: 'DOUBLE-HELIX' #Варианты HELIX, DOUBLE-HELIX, NONE # Настройки спиралей ниже
+    random-particle: true # true / false ниже настройка эффекта
+  end: # пример настроеного аирдропа
+    chest-id: end #
+    chest-name: '&dЭндер аирдроп'
+    chest-inventory-size: 54
+    item-chance-boost: 10
+    chest-spawn-world: world_the_end
+    chest-spawn-radius-min: -3500
+    chest-spawn-radius-max: 3500
+    chest-radius-protect: 15
+    time-start-interval: 90
+    search-before-start: 5
+    duration-event: 10
+    time-stop-event: 15
+    chest-material-locked: RESPAWN_ANCHOR
+    chest-material-unlocked: CHEST
+    helix: 'DOUBLE-HELIX' #Варианты HELIX, DOUBLE-HELIX, NONE # Настройки спиралей ниже
+    random-particle: true
+
 config-version: 1
 settings:
+  world-guard-flags: #Флаги WorldGuar
+    allow-flags: #разрешённые
+      - use
+      - pvp
+      - chest-access
+    deny-flags: #запрещённые
+      - creeper-explosion
+      - tnt
+      - fire-spread
+      - lava-fire
+      - other-explosion
+
   #настройки спавна аирдропа
-  spawn-max: 2000 #Максимальная
-  spawn-min: -2000 #Минимальная координата
-  world: world #мир в котором появится аирдроп
-  radius-protect-block: 15 # размер защиты аирдропа
   min-online-players: 1 #минимальное количество игроков на сервере для старта ивента
-  #настройки таймингов появления аирдропа
-  time-start-interval: 2 #Сколько до начала в минутах
-  duration-event: 1 #сколько будет закрыт сундук
-  time-stop-event: 1 #через сколько после начала пропадёт аирдроп
-  #прочее
   empty-slot-chance: 25 #Шанс того что слот будет пустым от 0 до 100. 0 - отключит, а 100 сделает сундуки всегда пустыми
   laser-settings: #Настройки лазера
     laser: 'CRYSTAL_LASER' # варианты: CRYSTAL_LASER, GUARDIAN_LASER, NONE
     laser-view-distance: 50 # в блоках
     laser-time: 300 # в секундах
   effect-settings: #Настройки эфектов
-    explosion-power: 4.75 #Сила взрыва для Эфекта Explosion. 4.75 = взрыву заряженного крипера
+    explosion-power: 4.75 #Сила взрыва для Эфекта Explosion
     drop-open-effect: # Что будет происходить когда аир дроп откроется варианты - strikeLightning (молния), fireWork (фейерверк), explosion (взрыв, блоки не взорвутся), fakeStrikeLightning (будет эффект удара молнии без нанесения урона)
       - explosion
       - strikeLightning
       - fireWork
       - fakeStrikeLightning
       - defenders
+    sound-effect: #Список всех звуков - https://helpch.at/docs/1.16.5/org/bukkit/Sound.html
+      start-event: # Начало ивента
+        play-sound: false
+        sound: BLOCK_STONE_BUTTON_CLICK_ON
+        listeners: all #Варианты all - все онлайн игроки, near - игроки возле аирдропа
+
+      open-event: # открытие аирдропа
+        play-sound: false
+        sound: BLOCK_STONE_BUTTON_CLICK_ON
+        listeners: near #Варианты all - все онлайн игроки, near - игроки возле аирдропа
+
+      end-event: # конец ивента
+        play-sound: false
+        sound: BLOCK_STONE_BUTTON_CLICK_ON
+        listeners: all #Варианты all - все онлайн игроки, near - игроки возле аирдропа
+
+      click-event: # Когда кто-то кликает по закрытому аирдропу
+        play-sound: false
+        sound: BLOCK_STONE_BUTTON_CLICK_ON
+        listeners: player #Варианты all - все онлайн игроки, near - игроки возле аирдропа, player - игрок вызвавший ивент
+
+      click-open-event: # Когда кто-то открывает аирдроп
+        play-sound: false
+        sound: BLOCK_STONE_BUTTON_CLICK_ON
+        listeners: player #Варианты all - все онлайн игроки, near - игроки возле аирдропа, player - игрок вызвавший ивент
+
+      notification-start-sound: # Проигрывается звук 'notification-start-sound-time' в это время
+        play-sound: false
+        sound: BLOCK_STONE_BUTTON_CLICK_ON
+        listeners: all #Варианты all - все онлайн игроки, near - игроки возле аирдропа
+
+      notification-unlock-sound: # Проигрывается звук 'notification-start-unlock-time' в это время
+        play-sound: false
+        sound: BLOCK_STONE_BUTTON_CLICK_ON
+        listeners: near #Варианты all - все онлайн игроки, near - игроки возле аирдропа
+
+
+    #Настройки Спиралей
+    helix-settings:
+      close: #цвет когда аирдроп закрыт
+        color:
+          r: 255
+          g: 0
+          b: 0
+      open: #цвет когда аирдроп открыт
+        color:
+          r: 0
+          g: 255
+          b: 0
+      radius: 1 # радиус спирали
+      view-distance: 50 # дистанция с которой будет видно спираль
+      height-y: 50 # насколько высоко протянется спираль над аирдропом
+      helix-pitch: 0.05 # Расстояние между партиклами. Не рекомендуется делать меньше
+      offset-y: 3 # смещение по высоте относительно аирдропа
+      offset-x: 0.5 # смещение по x
+      offset-z: 0.5 # смещение по z
+    # Двойная спираль
+    double-helix-settings:
+      close:
+        color:
+          r: 255
+          g: 0
+          b: 0
+        color2:
+          r: 0
+          g: 137
+          b: 255
+      open:
+        color:
+          r: 0
+          g: 255
+          b: 0
+        color2:
+          r: 255
+          g: 255
+          b: 0
+      radius: 1 # радиус спирали
+      view-distance: 50 # дистанция с которой будет видно спираль
+      height-y: 50 # насколько высоко протянется спираль над аирдропом
+      helix-pitch: 0.05 # расстояние между партиклами. Не рекомендуется делать меньше
+      offset-y: 3 # смещение по высоте относительно аирдропа
+      offset-x: 0.5 # смещение по x
+      offset-z: 0.5 # смещение по z
+    #Рандомные частицы
+    random-particle:
+      particle: "TOTEM" #партиклы
+      particle2: "FLAME"
+      amount: 50 #количество партиклов умножается на 2 так как одновременно появится particle и particle2
+      radius: 5 #радиус спавна партиклов
+      view-distance: 50 # дистанция с которой будет видно партиклы
+
   defenders: #мобы охранники
     name: "&c&lХранитель"
     type: VINDICATOR # все мобы - https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/Entity.html список под текстом 'All Known Subinterfaces:'
+
 msg:
+  drop-open-event: '&fИгрок &6{player} &7первым добрался до {name}!'
+  drop-open: '{px} {name} &fоткрыт на координатах &6{x}, {y}, {z} &f В мире: {world}'
+
+  drop-spawning: '{px} {name} &fтолько что &6появился &fна координатах &6{x}, {y}, {z}' # Выводится когда ивент начался
+  event-end: '{px} {name} &7окончен!' # Выводится когда закончился
+  msg-open-event: '{px} {name} &fоткроется через &6{time2_locked}!' # notification-open-time
+  msg-start-event: '{px} {name} &fпоявится через &6{time2_start}!' # notification-time
+  chest-locked: '{px} &cСундук закрыт!'
+  prefix: '&7[&6АирДроп&7]' #Заменяет {px}
   item-del: '&c&lПКМ &f- удалить предмет из списка'
   unknown-command: '&cНеизвестная команда'
-  invalid-key: '&cПредметов с таким ключом нет!'
-  only-players: 'Only players!'
-  reload: '&aКонфиг перезагружен!'
-  item-add: '&aПредметы добавлены по ключу {key}'
-  error-number: '&cОшибка возможно вы ввели не число! детали в консоли'
-  prefix: '&7[&6АирДроп&7]' #Заменяет {px}
-  drop-name-holo: '&aAir drop' # Первая строчка голограммы над сундуком
-  drop-locked: '&cЗакрыто. Откроется через {time2}' #Вторая строчка над сундуком
-  drop-unlocked: '&aОткрыто' # Вторая строчка над сундуком
-  chest-locked: '{px} &cСундук закрыт!' # Выводится когда, игрок пытается открыть сундук
-  no-prem: '&cУ Вас нет разрешения!' # Выводится когда у игрока нет разрешения
-  no-event: '{px} &cИзвините но ивент не начат!'
-  few-arguments: '{px} &cМало аргументов!'
-  drop-spawning: '{px} &fАирдроп только что &6появился &fна координатах &6{x}, {y}, {z}' # Выводится когда ивент начался
-  event-end: '{px} &fАирдроп окончен!' # Выводится когда закончился
-  msg-open-event: '{px} &fАирдроп &aоткроется &fчерез &6{time2}!' # notification-open-time
-  msg-start-event: '{px} &fАирдроп &aпоявится &fчерез &6{time2}!' # notification-time
+  invalid-key: '{PP} &cПредметов с таким ключом нет!'
+  only-players: '{PP} Only players!'
+  reload: '{PP} &aКонфиг перезагружен!'
+  item-add: '{PP} &aПредметы добавлены по ключу {key}'
+  error-number: '{PP} &cОшибка возможно вы ввели не число! детали в консоли'
+  no-prem: '&cУ Вас нет разрешения!'
+  no-event: '{PP} &cИзвините но ивент не начат!'
+  few-arguments: '{PP} &cМало аргументов!'
   papi-event-is-activity: '&aНачат!'
+  papi-event-ended: '&aИвент окончен'
   papi-chest-is-unlocked: '&aУже открыт!'
   papi-poz: '{x}, {y}, {z}'
-  papi-poz-none: '&cНет активного ивента!' #Используют %airdrop_poz%, %airdrop_locked% и %airdrop_locked2%
-  notification-open-time: #за сколько до открытия сундука выводить сообщение о его предстоящем открытии в секундах
-    - 60
-    - 30
-    - 10
-    - 5
-    - 3
-    - 2
-    - 1
-  notification-time: #за сколько до начала ивента выводить сообщение о его предстоящем начале в секундах
-    - 60
-    - 30
-    - 10
-    - 5
-    - 3
-    - 2
-    - 1
+  papi-poz-none: '&cНет активного ивента!'
+  notification-open-time: [60, 30, 10, 5, 3, 2, 1] #за сколько до открытия сундука выводить сообщение о его предстоящем открытии в секундах
+  notification-time: [60, 30, 10, 5, 3, 2, 1] #за сколько до начала ивента выводить сообщение о его предстоящем начале в секундах
+  notification-unlock-sound-time: [10, 5, 3, 2, 1] #за сколько до открытия проигрывать звук
+  notification-start-sound-time: [10, 5, 3, 2, 1] #за сколько до старта проигрывать звук
   format-time: # Формат вывода времени
     - ' час '
     - ' часа '
@@ -76,12 +202,25 @@ msg:
     - ' минута '
     - ' минуты '
     - ' минут '
-    - ' секунда '
-    - ' секунды '
-    - ' секунд '
+    - ' секунда'
+    - ' секунды'
+    - ' секунд'
     - ' час '
     - ' минуту '
-    - ' секунду '
+    - ' секунду'
+  world-localization: # Название мира и то как оно будет отображаться в сообщениях от плагина например spawn_world: 'Спавн' или world_1: '1 анархия'
+    world: 'Обычный мир'
+    world_the_end: 'Эндер мир'
+    world_nether: 'Нижний мир'
+
+  holograms-lines:
+    locked:
+      - '&k0000000000000000000000000000000'
+      - '{name} &cЗакрыт {time3_locked}'
+      - '&k0000000000000000000000000000000'
+    unlocked:
+      - '{name}'
+      - '&aОткрыто'
 
 black-List:
   - LAVA
@@ -102,5 +241,4 @@ black-List:
   - SPRUCE_LEAVES
   - FLOWERING_AZALEA_LEAVES
   - JUNGLE_LEAVES
-
-data: # тут хранятся предметы
+data:

@@ -2,10 +2,8 @@ package org.by1337.airdrop.airdrop.util;
 
 
 import java.util.ArrayList;
-
 import java.util.List;
 import java.util.Objects;
-
 import org.bukkit.Location;
 import org.bukkit.event.Listener;
 import static org.by1337.airdrop.airdrop.AirDrop.instance;
@@ -53,6 +51,8 @@ public class LasersManager implements Listener {
 
         for (Laser laser : laserList) {
             if (laser.getEnd().getX() == loc.getX() && laser.getEnd().getZ() == loc.getZ()) {
+                if(!laser.isStarted())
+                    return;
                 laser.stop();
                 laserList.remove(laser);
                 break;

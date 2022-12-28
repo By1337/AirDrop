@@ -6,9 +6,9 @@ api-version: 1.13
 authors: [ By1337 ]
 description: Event AirDrop!
 commands:
-  airdrop:
+  aairdrop:
     description: Standart Command
-    aliases: [air]
+    aliases: [aair, air, airdrop]
     usage: Usage /air help
 permissions:
   air.*:
@@ -23,6 +23,7 @@ permissions:
       air.stop: true
       air.gui: true
       air.chest: true
+      air.error: true
   air.tp:
     description: /air tp
     default: op
@@ -46,4 +47,7 @@ permissions:
     default: op
   air.chest:
     description: /air chest
+    default: op
+  air.error:
+    description: info
     default: op

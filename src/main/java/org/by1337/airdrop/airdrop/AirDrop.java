@@ -1,31 +1,31 @@
 package org.by1337.airdrop.airdrop;
 
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Chest;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.World;
+import org.bukkit.inventory.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.by1337.airdrop.airdrop.Gui.ClickEvent;
 import org.by1337.airdrop.airdrop.Listener.Handler;
 import org.by1337.airdrop.airdrop.command.Cmd;
 import org.by1337.airdrop.airdrop.command.cmdCompleter;
 import org.by1337.airdrop.airdrop.util.*;
+
 import java.io.File;
 import java.util.*;
-import static org.by1337.airdrop.airdrop.AirSpawn.getAirLocation;
+
 import static org.by1337.airdrop.airdrop.util.CfgManager.Config.*;
 
 public final class AirDrop extends JavaPlugin implements Runnable {
 
     public static AirDrop instance;
     public static HashMap<Short, List<ItemStack>> baseItem = new HashMap<>();
-    public static HashMap<Short, List<ItemStack>> tempBaseItem = new HashMap<>();
-    public static int startDelay;
-    public static int chestLockedDelay;
-    public static int stopEventDelay;
-    private final HologramManager hologram = new HologramManager();
+
+    public static List<org.by1337.airdrop.airdrop.Chest> ChestList = new ArrayList<>();
+    public static List<String> activeTasks = new ArrayList<>();
+
     public static void setInstance(AirDrop instance) {
         AirDrop.instance = instance;
     }
@@ -35,6 +35,7 @@ public final class AirDrop extends JavaPlugin implements Runnable {
         setInstance(this);
 
         File config = new File(this.getDataFolder() + File.separator + "config.yml");
+
         if (!config.exists()) {
             this.getLogger().info("Creating new config file, please wait");
             this.getConfig().options().copyDefaults(true);
@@ -45,11 +46,8 @@ public final class AirDrop extends JavaPlugin implements Runnable {
         if (instance.getConfig().getConfigurationSection("data") != null)
             Load();
         Update();
-        startDelay = getTimeStartInterval() * 60;
-        chestLockedDelay = getTimeLockedChest() * 60;
-        stopEventDelay = getTimeStopEvent() * 60;
-        Objects.requireNonNull(this.getCommand("airdrop")).setExecutor(new Cmd(this));
-        Objects.requireNonNull(this.getCommand("airdrop")).setTabCompleter((new cmdCompleter()));
+        Objects.requireNonNull(this.getCommand("aairdrop")).setExecutor(new Cmd(this));
+        Objects.requireNonNull(this.getCommand("aairdrop")).setTabCompleter((new cmdCompleter()));
         getServer().getPluginManager().registerEvents(new Handler(this), this);
         getServer().getPluginManager().registerEvents(new ClickEvent(), this);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, this, 20L, 20L);
@@ -60,21 +58,24 @@ public final class AirDrop extends JavaPlugin implements Runnable {
 
     }
 
+
     private void Update() {
-        double currentVersion = 1.1;
+        double currentVersion = 1.4;
         if (getConfigVersion() == null || getConfigVersion() != currentVersion) {
-            Message.Logger("PX &aConfig update starts");
+            Message.Logger("{PP} &aConfig update starts");
+            Object chest = instance.getConfig().get("chests");
+            Object sounds = instance.getConfig().get("settings.effect-settings.sound-effect");
             File config = new File(instance.getDataFolder() + File.separator + "config.yml");
             File configOld = new File(instance.getDataFolder() + File.separator + "config.yml.old");
-            if(configOld.exists()){
-               boolean isRemove = new File(instance.getDataFolder() + File.separator + "config.yml.old").delete();
-               if(!isRemove){
-                   Message.Error("The old config dump was not deleted! Delete it manually!");
-                   Message.Error("Config update failed!");
-                   return;
-               }
+            if (configOld.exists()) {
+                boolean isRemove = new File(instance.getDataFolder() + File.separator + "config.yml.old").delete();
+                if (!isRemove) {
+                    Message.Error("The old config dump was not deleted! Delete it manually!");
+                    Message.Error("Config update failed!");
+                    return;
+                }
             }
-            if (!config.exists()){
+            if (!config.exists()) {
                 Message.Error("Config update failed!");
                 return;
             }
@@ -86,153 +87,152 @@ public final class AirDrop extends JavaPlugin implements Runnable {
                 instance.saveDefaultConfig();
                 instance.saveConfig();
                 instance.reloadConfig();
+                instance.getConfig().set("chests", chest);
+                instance.getConfig().set("settings.effect-settings.sound-effect", sounds);
                 SetConfig();
                 instance.getConfig().set("config-version", currentVersion);
+
                 Save();
                 instance.saveConfig();
                 instance.reloadConfig();
                 LoadConfig();
-            }else{
+            } else {
                 Message.Error("An error occurred while updating the config!");
                 Message.Error("Config update failed!");
                 return;
             }
-            Message.Logger("PX &aConfig Successfully updated!");
+            Message.Logger("{PP} &aConfig Successfully updated!");
         }
     }
 
     public static void Save() {
-        if(baseItem == null)
+        if (baseItem == null)
             return;
         instance.getConfig().set("data", null);
 
         for (short chance : baseItem.keySet()) {
-            instance.getConfig().set("data." + chance, baseItem.get(chance));
+            if(baseItem.get(chance).size() > 0)
+                instance.getConfig().set("data." + chance, baseItem.get(chance));
+            else
+                baseItem.remove(chance);
         }
         instance.saveConfig();
         GetRandomItem.chance = AirDrop.baseItem.keySet().toArray(new Short[0]);
-        Message.Logger("PX baseItem save &asuccessful!");
     }
 
     @SuppressWarnings("unchecked")
     public static void Load() {
+        ChestList.clear();
+        for (String key : Objects.requireNonNull(instance.getConfig().getConfigurationSection("chests")).getKeys(false)) {
+            String chestId = instance.getConfig().getString("chests." + key + ".chest-id");
+            if(!chestId.equals(key)){
+                instance.getConfig().set("chests." + key + ".chest-id", key);
+                chestId = key;
+            }
+            String chestName = instance.getConfig().getString("chests." + key + ".chest-name");
+            int inventorySiz = instance.getConfig().getInt("chests." + key + ".chest-inventory-size");
+            int chanceBoost = instance.getConfig().getInt("chests." + key + ".item-chance-boost");
+            int radiusProtect = instance.getConfig().getInt("chests." + key + ".chest-radius-protect");
+            int timeStartInterval = instance.getConfig().getInt("chests." + key + ".time-start-interval");
+            int durationEvent = instance.getConfig().getInt("chests." + key + ".duration-event");
+            int timeStopEvent = instance.getConfig().getInt("chests." + key + ".time-stop-event");
+            World world = Bukkit.getWorld((String) Objects.requireNonNull(instance.getConfig().get("chests." + key + ".chest-spawn-world")));
+            int spawnRadiusMin = instance.getConfig().getInt("chests." + key + ".chest-spawn-radius-min");
+            int spawnRadiusMax = instance.getConfig().getInt("chests." + key + ".chest-spawn-radius-max");
+            Material materialLocked;
+            Material materialUnlocked;
+            try {
+                Enum.valueOf(Material.class, Objects.requireNonNull(instance.getConfig().getString("chests." + key + ".chest-material-locked")));
+                materialLocked = Material.valueOf(instance.getConfig().getString("chests." + key + ".chest-material-locked"));
+
+            } catch (Exception e) {
+                Message.Error("{PP} Матерьяла " + instance.getConfig().getString("chests." + key + ".chest-material-locked") + " не существует!");
+                materialLocked = Material.FURNACE;
+            }
+
+            try {
+                Enum.valueOf(Material.class, Objects.requireNonNull(instance.getConfig().getString("chests." + key + ".chest-material-unlocked")));
+                materialUnlocked = Material.valueOf(instance.getConfig().getString("chests." + key + ".chest-material-unlocked"));
+
+            } catch (Exception e) {
+                Message.Error("{PP} Матерьяла " + instance.getConfig().getString("chests." + key + ".chest-material-unlocked") + " не существует!");
+                materialUnlocked = Material.FURNACE;
+            }
+
+            if (!materialLocked.isBlock()) {
+                Message.Error("{PP} " + materialLocked.name() + " Не блок!");
+                materialLocked = Material.FURNACE;
+            }
+            if (!materialUnlocked.isBlock()) {
+                Message.Error("{PP} " + materialUnlocked.name() + " Не блок!");
+                materialUnlocked = Material.FURNACE;
+            }
+            int searchBeforeStart = instance.getConfig().getInt("chests." + key + ".search-before-start");
+            int[] spawn = new int[2];
+            spawn[0] = spawnRadiusMin;
+            spawn[1] = spawnRadiusMax;
+            ChestList.add( new org.by1337.airdrop.airdrop.Chest(chestName, chestId, chanceBoost, world, spawn, radiusProtect, timeStartInterval, durationEvent, timeStopEvent, materialLocked, materialUnlocked, inventorySiz, searchBeforeStart));
+        }
         baseItem.clear();
         for (String chance : instance.getConfig().getConfigurationSection("data").getKeys(false)) {
             baseItem.put(Short.valueOf(chance), (List<ItemStack>) instance.getConfig().getList("data." + chance));
         }
+        Save();
     }
 
-    public static void Start() {
-        chestLockedDelay = getTimeLockedChest() * 60;
-        stopEventDelay = getTimeStopEvent() * 60;
-        startDelay = 0;
+    public static void UnLoad() {
+        if(!ChestList.isEmpty()){
+            for(Chest chest : ChestList){
+                chest.Destroyer();
+            }
+        }
     }
-
-    public static void Stop() {
-        chestLockedDelay = 0;
-        stopEventDelay = 0;
-        startDelay = getTimeStartInterval() * 60;
-    }
-
-    public static void Unlock() {
-        chestLockedDelay = 0;
-        startDelay = 0;
-    }
-
     @Override
     public void onDisable() {
         Save();
-        if (getAirLocation() != null)
-            getAirLocation().getBlock().setType(Material.AIR);
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
             new PlaceholderExpansion(this).unregister();
+        UnLoad();
+
+
     }
 
-    private void Effects() {
-        if (!AirSpawn.eventActivity)
-            return;
+    static void Effects(Location loc) {
         for (String str : getDropOpenEffect()) {
             str = str.toLowerCase();
-            switch (str){
+            switch (str) {
                 case ("strikelightning"):
-                    Effect.StrikeLightning(getAirLocation());break;
+                    Effect.StrikeLightning(loc);
+                    break;
                 case ("firework"):
-                    Effect.createFireWork(getAirLocation());break;
+                    Effect.createFireWork(loc);
+                    break;
                 case ("explosion"):
-                    Effect.Explosion(getAirLocation(), getExplosionPower());break;
+                    Effect.Explosion(loc, getExplosionPower());
+                    break;
                 case ("fakestrikelightning"):
-                    Effect.FakeStrikeLightning(getAirLocation());break;
+                    Effect.FakeStrikeLightning(loc);
+                    break;
                 case ("defenders"):
-                    Effect.SpawnGuards(getAirLocation());break;
+                    Effect.SpawnGuards(loc);
+                    break;
                 default:
-                    Message.Warning("Unknown effect! drop-open-effect line - " + str + " Change it to config");break;
+                    Message.Warning("Unknown effect! drop-open-effect line - " + str + " Change it to config");
+                    break;
             }
         }
     }
 
     @Override
     public void run() {
-        if (startDelay <= 0 && !AirSpawn.eventActivity && Bukkit.getOnlinePlayers().size() >= getMinOnlinePlayers()) {
-            AirSpawn.Start();
-            LasersManager.createLaser(getAirLocation());
-            Message.SendAllMsg(getDropSpawning().replace("{x}", "" + getAirLocation().getX()).replace("{y}", "" + getAirLocation().getY()).replace("{z}", "" + getAirLocation().getZ()));
-        } else if (!AirSpawn.eventActivity) {
-            if (getNotificationTime().contains(String.valueOf(startDelay)))
-                Message.SendAllMsg(getMsgStartEvent().replace("{time}", Format(startDelay)).replace("{time2}", Format2(startDelay)));
-            startDelay--;
-        }
-        if (AirSpawn.eventActivity) {
-            if (chestLockedDelay <= 0 && AirSpawn.chestLocked) {
-                AirSpawn.chestLocked = false;
-                Effects();
-            } else if (AirSpawn.chestLocked) {
-                if (getNotificationOpenTime().contains(String.valueOf(chestLockedDelay)))
-                    Message.SendAllMsg(getMsgOpenEvent().replace("{time2}", Format2(chestLockedDelay)).replace("{time}", Format(chestLockedDelay)));
-                chestLockedDelay--;
-            }
-        }
-
-        if (AirSpawn.eventActivity && stopEventDelay <= 0) {
-            if (getAirLocation().getBlock().getState() instanceof Chest) {
-                Chest chest = (Chest) getAirLocation().getBlock().getState();
-                chest.getInventory().clear();
-            }
-            getAirLocation().getBlock().setType(Material.AIR);
-            LasersManager.removeLaser(getAirLocation());
-            hologram.HoloDel();
-            AirSpawn.RemoveRegion();
-            AirSpawn.End();
-            Message.SendAllMsg(getEventEnd());
-            startDelay = getTimeStartInterval() * 60;
-            chestLockedDelay = getTimeLockedChest() * 60;
-            stopEventDelay = getTimeStopEvent() * 60;
-        } else if (AirSpawn.eventActivity && chestLockedDelay <= 0) {
-            stopEventDelay--;
-        }
-        if (AirSpawn.eventActivity && getAirLocation() != null) {
-            hologram.HoloCreate(new Location(getAirLocation().getWorld(), getAirLocation().getX() + 0.5, getAirLocation().getY() + 1.7, getAirLocation().getZ() + 0.5));
-            hologram.HoloUpdate(Format(chestLockedDelay), Format2(chestLockedDelay));
-        }
-        AirSpawn.RndLoc();
-
-        if (AirSpawn.eventActivity && getAirLocation().getBlock().getState() instanceof Chest) {
-            Chest chest = (Chest) getAirLocation().getBlock().getState();
-            Inventory inv = chest.getBlockInventory();
-            boolean empty = true;
-            for (ItemStack item : inv.getContents()) {
-                if (item != null && item.getType() != Material.AIR) {
-                    empty = false;
-                    break;
-                }
-            }
-            if (empty) {
-                Stop();
-            }
-
+        if(ChestList.isEmpty())
+            return;
+        for(Chest chest : ChestList){
+            chest.Timer();
         }
     }
 
-    public String Format(long Sec) {
+    public static String Format(long Sec) {
         int hour = (int) Sec / 3600;
         int min = (int) Sec % 3600 / 60;
         int sec = (int) Sec % 60;
@@ -267,7 +267,7 @@ public final class AirDrop extends JavaPlugin implements Runnable {
         return fin;
     }
 
-    public String Format2(long Sec) {
+    public static String Format2(long Sec) {
         int hour = (int) Sec / 3600;
         int min = (int) Sec % 3600 / 60;
         int sec = (int) Sec % 60;
@@ -300,5 +300,12 @@ public final class AirDrop extends JavaPlugin implements Runnable {
                 fin += "" + sec + getFormatTime().get(8);
         }
         return fin;
+    }
+
+    public static String Format3(long Sec) {
+        int hour = (int) Sec / 3600;
+        int min = (int) Sec % 3600 / 60;
+        int sec = (int) Sec % 60;
+        return String.format("%02d:%02d:%02d", hour, min, sec);
     }
 }
